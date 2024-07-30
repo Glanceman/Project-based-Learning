@@ -10,19 +10,28 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/dist)
 
 
 
+# Add subdirectories
+add_subdirectory(modules/net-common)
+add_subdirectory(modules/net-client)
+add_subdirectory(modules/simple-example)
 
-file(GLOB_RECURSE SOURCES
-    "${PROJECT_SOURCE_DIR}/src/*.h"
-    "${PROJECT_SOURCE_DIR}/src/*.cpp"
-)
+# file(GLOB_RECURSE SOURCES
+#     "${PROJECT_SOURCE_DIR}/src/*.h"
+#     "${PROJECT_SOURCE_DIR}/src/*.cpp"
+# )
 
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+# add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+
 
 
 # Include Asio
-target_include_directories(${CMAKE_PROJECT_NAME}  PRIVATE 
-    ${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
-)
+# target_include_directories(${CMAKE_PROJECT_NAME}  PRIVATE 
+#     ${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
+# )
+
+
+# Include Asio
+include_directories(${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include)
 
 # # Define ASIO_STANDALONE if you're not using Boost
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE 
@@ -31,10 +40,10 @@ target_include_directories(${CMAKE_PROJECT_NAME}  PRIVATE
 # )
 
 # Link necessary libraries for Windows
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE 
-    ws2_32
-    mswsock
-)
+# target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE 
+#     ws2_32
+#     mswsock
+# )
 
 # Create the dist directory if it doesn't exist
 file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
