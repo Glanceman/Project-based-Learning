@@ -11,7 +11,7 @@ enum class CustomMsgTypes : uint32_t
 int main(){
     Olc::Net::Message<CustomMsgTypes> msg;
     msg.header.id=CustomMsgTypes::FireBullet;
-    int a =1;
+    int a = 1;
     bool b =true;
     float c =3.141;
 
@@ -19,14 +19,15 @@ int main(){
         float x;
         float y;
     }d[5];
-
+    std::cout<<a<<" "<<b<<" "<<c<<std::endl;
     msg<<a<<b<<c<<d;
 
     a=99;
     b=false;
     c=99.0f;
-    msg>>d>>c>>b>>a;
 
+    msg>>d>>c>>b>>a;
+    std::cout<<a<<" "<<b<<" "<<c;
     std::cout<<"\ndone";
     return 0;
 }

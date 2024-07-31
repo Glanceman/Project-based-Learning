@@ -11,9 +11,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/dist)
 
 
 # Add subdirectories
+add_subdirectory(modules/simple-example)
 add_subdirectory(modules/net-common)
 add_subdirectory(modules/net-client)
-add_subdirectory(modules/simple-example)
 
 # file(GLOB_RECURSE SOURCES
 #     "${PROJECT_SOURCE_DIR}/src/*.h"

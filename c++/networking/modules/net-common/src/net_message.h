@@ -68,9 +68,13 @@ namespace Olc
             friend Message<T> &operator>>(Message<T> &msg, T2 &outData)
             {
                 static_assert(std::is_standard_layout<T2>::value, "Date is too complex and can not be extract");
+
                 size_t startingIndex = msg.body.size() - sizeof(T2);
+
                 std::memcpy(&outData, msg.body.data() + startingIndex, sizeof(T2));
-                msg.body.reserve(startingIndex);
+
+                msg.body.resize(startingIndex);
+
                 msg.header.size = msg.size();
                 return msg;
             }
@@ -81,5 +85,20 @@ namespace Olc
             std::vector<uint8_t> body;
         };
 
+        template<typename T>
+        class Connection;
+
+        template<typename T>
+        struct OwnedMessage{
+            std::shared_ptr<Connection<T>> remote =nullptr;
+            Message<T> msg;
+
+
+            friend std::ostream &operator<<(std::ostream &os, const OwnedMessage<T> &message)
+            {
+                os << message.msg;
+                return os;
+            }
+        };
     }
 }

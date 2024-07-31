@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5.0)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 
 # file(GLOB_RECURSE SOURCES
@@ -10,10 +10,20 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # )
 
 
-add_library(net-common net_common.h net_message.h olc_net.h)
+add_library(net-common 
+    ./src/net_common.h
+    ./src/net_tsqueue.h 
+    ./src/net_message.h 
+    ./src/net_server.h
+    ./src/net.client.h
+    ./src/net_connection.h
+    ./src/olc_net.h 
+)
+
+
 target_include_directories(net-common INTERFACE 
-${CMAKE_CURRENT_SOURCE_DIR}
-${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+    ${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
 )
 
 # No need to link libraries for header-only library
