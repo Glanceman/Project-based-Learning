@@ -9,11 +9,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/dist)
 
 
+#include_directories(${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include)
 
 # Add subdirectories
-add_subdirectory(modules/simple-example)
 add_subdirectory(modules/net-common)
 add_subdirectory(modules/net-client)
+add_subdirectory(modules/net-server)
+add_subdirectory(modules/simple-example)
 
 # file(GLOB_RECURSE SOURCES
 #     "${PROJECT_SOURCE_DIR}/src/*.h"
@@ -31,7 +33,7 @@ add_subdirectory(modules/net-client)
 
 
 # Include Asio
-include_directories(${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include)
+#include_directories(${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include/)
 
 # # Define ASIO_STANDALONE if you're not using Boost
 # target_compile_definitions(${CMAKE_PROJECT_NAME} PRIVATE 

@@ -20,7 +20,7 @@ namespace Olc
             /// @return
             const T &front()
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 return deqQueue.front();
             }
 
@@ -28,7 +28,7 @@ namespace Olc
             /// @return
             const T &back()
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 return deqQueue.back();
             }
 
@@ -36,7 +36,7 @@ namespace Olc
             /// @param item
             void emplace_back(const T &item)
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 deqQueue.emplace_back(std::move(item));
             }
 
@@ -44,7 +44,7 @@ namespace Olc
             /// @param item
             void emplace_front(const T &item)
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 deqQueue.emplace_front(std::move(item));
             }
 
@@ -52,25 +52,25 @@ namespace Olc
             /// @return
             bool empty()
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 return deqQueue.empty();
             }
 
             size_t count()
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 return deqQueue.count();
             }
 
             void clear()
             {
-                std::scoped_lock lock(muxQueue);
-                deqQueue.clear()
+                std::scoped_lock lock(mtx);
+                deqQueue.clear();
             }
 
             T pop_front()
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 T temp = std::move(deqQueue.front());
                 deqQueue.pop_front();
                 return temp;
@@ -78,7 +78,7 @@ namespace Olc
 
             T pop_back()
             {
-                std::scoped_lock lock(muxQueue);
+                std::scoped_lock lock(mtx);
                 T temp = std::move(deqQueue.back());
                 deqQueue.pop_back();
                 return temp;

@@ -1,12 +1,16 @@
 cmake_minimum_required(VERSION 3.5.0)
 
+project(net-client VERSION 0.1.0 LANGUAGES C CXX)
+
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
-file(GLOB_RECURSE SOURCES
-    "*.h"
-    "*.cpp"
-)
+# file(GLOB_RECURSE SOURCES
+#     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
+#     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+# )
+
+aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/" SOURCES)
 
 #add_library(net-client STATIC ${SOURCES})
 

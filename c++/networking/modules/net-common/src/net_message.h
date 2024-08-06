@@ -13,7 +13,7 @@ namespace Olc
         struct Message_header
         {
         public:
-            T id{};
+            T id;
             uint32_t size = 0; // message size
         };
 
@@ -92,8 +92,7 @@ namespace Olc
         struct OwnedMessage{
             std::shared_ptr<Connection<T>> remote =nullptr;
             Message<T> msg;
-
-
+            
             friend std::ostream &operator<<(std::ostream &os, const OwnedMessage<T> &message)
             {
                 os << message.msg;

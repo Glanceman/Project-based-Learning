@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.5.0)
 
-project(simple-example VERSION 0.1.0 LANGUAGES C CXX)
+project(net-server VERSION 0.1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 # file(GLOB_RECURSE SOURCES
 #     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
@@ -14,14 +14,14 @@ aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/" SOURCES)
 
 #add_library(net-client STATIC ${SOURCES})
 
-add_executable(simple-example ${SOURCES})
+add_executable(net-server ${SOURCES})
 
-target_include_directories(simple-example PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
+target_include_directories(net-server  PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
 )
 
-target_link_libraries(simple-example  PRIVATE 
+target_link_libraries(net-server  PRIVATE 
     net-common
     ws2_32
     mswsock

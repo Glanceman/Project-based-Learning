@@ -9,6 +9,7 @@
 #include <asio/ts/buffer.hpp>
 #include <asio/ts/internet.hpp>
 
+
 std::vector<char> vBuffer(1 * 1024);
 void GrabSomeData(asio::ip::tcp::socket &socket)
 {
@@ -32,6 +33,8 @@ int main(int, char **)
     std::cout << "APP Start";
     asio::error_code error_code;
     asio::io_context context; // the platform specific interface
+    
+
 
     // allow the context to keep running
     asio::io_context::work idleWork(context);
