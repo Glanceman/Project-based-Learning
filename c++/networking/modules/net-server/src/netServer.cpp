@@ -21,7 +21,7 @@ public:
 	}
 
 protected:
-	virtual bool OnClientConnect(std::shared_ptr<Olc::Net::Connection<CustomMsgTypes>> client)
+	virtual bool OnClientConnect(std::shared_ptr<Olc::Net::Connection<CustomMsgTypes>> client) override
 	{
 		Olc::Net::Message<CustomMsgTypes> msg;
 		msg.header.id = CustomMsgTypes::ServerAccept;
@@ -30,13 +30,13 @@ protected:
 	}
 
 	// Called when a client appears to have disconnected
-	virtual void OnClientDisconnect(std::shared_ptr<Olc::Net::Connection<CustomMsgTypes>> client)
+	virtual void OnClientDisconnect(std::shared_ptr<Olc::Net::Connection<CustomMsgTypes>> client) override
 	{
 		// std::cout << "Removing client [" << client->GetID() << "]\n";
 	}
 
 	// Called when a Message arrives
-	virtual void OnMessage(std::shared_ptr<Olc::Net::Connection<CustomMsgTypes>> client, Olc::Net::Message<CustomMsgTypes>& msg)
+	virtual void OnMessage(std::shared_ptr<Olc::Net::Connection<CustomMsgTypes>> client, Olc::Net::Message<CustomMsgTypes>& msg) override
 	{
 		// switch (msg.header.id)
 		// {

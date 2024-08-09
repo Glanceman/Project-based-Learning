@@ -13,6 +13,7 @@
 std::vector<char> vBuffer(1 * 1024);
 void GrabSomeData(asio::ip::tcp::socket &socket)
 {
+    //write data into the buffer
     socket.async_read_some(asio::buffer(vBuffer.data(), vBuffer.size()),
                            [&](std::error_code ec, std::size_t length)
                            {
@@ -45,7 +46,7 @@ int main(int, char **)
                                             context.run(); 
                                             std::cout << "\nContext finish"; });
     asio::ip::tcp::endpoint endpoint(asio::ip::make_address("172.217.27.4", error_code), 80); // create address
-    asio::ip::tcp::socket socket(context);
+    asio::ip::tcp::socket socket(context); //open socket
     socket.connect(endpoint, error_code);
 
     if (error_code)
@@ -66,6 +67,7 @@ int main(int, char **)
             "Host: example.com\r\n"
             "Connection: close\r\n\r\n";
 
+        //send
         socket.write_some(asio::buffer(request.data(), request.size()), error_code);
 
         

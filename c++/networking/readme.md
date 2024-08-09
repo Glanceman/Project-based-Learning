@@ -11,7 +11,11 @@ E:.
 ├─dist
 ├─libs
 │  └─asio-1.30.2
-└─src
+└─modules
+    ├─net-client
+    ├─net-common
+    ├─net-server
+    └─simple-example
 ```
 
 1. create `libs` which contain asio 

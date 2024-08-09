@@ -14,18 +14,18 @@ namespace Olc
         {
         public:
             T id;
-            uint32_t size = 0; // message size
+            uint32_t size = 0; // message size including header
         };
 
         template <typename T>
         struct Message
         {
         public:
-            /// @brief get the size of message
+            /// @brief get the size of message content
             /// @return size
             size_t size()
             {
-                return sizeof(Message_header<T>) + body.size();
+                return body.size();
             }
 
             /// @brief print header info
@@ -44,7 +44,7 @@ namespace Olc
             /// @param data
             /// @return
             template <typename T2>
-            friend Message<T> &operator<<(Message<T> &msg, const T2 &data)
+            friend Message<T> &operator <<(Message<T> &msg, const T2 &data)
             {
                 static_assert(std::is_standard_layout<T2>::value, "Date is too complex and can not be copied");
 
@@ -65,7 +65,7 @@ namespace Olc
             /// @param data
             /// @return
             template <typename T2>
-            friend Message<T> &operator>>(Message<T> &msg, T2 &outData)
+            friend Message<T> &operator >>(Message<T> &msg, T2 &outData)
             {
                 static_assert(std::is_standard_layout<T2>::value, "Date is too complex and can not be extract");
 
@@ -90,6 +90,7 @@ namespace Olc
 
         template<typename T>
         struct OwnedMessage{
+            
             std::shared_ptr<Connection<T>> remote =nullptr;
             Message<T> msg;
             
