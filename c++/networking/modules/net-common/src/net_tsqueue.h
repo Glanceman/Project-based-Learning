@@ -38,6 +38,7 @@ namespace Olc
             {
                 std::scoped_lock lock(mtx);
                 deqQueue.emplace_back(std::move(item));
+                cv.notify_one();
             }
 
             /// @brief add item at the front of the queue
@@ -46,6 +47,7 @@ namespace Olc
             {
                 std::scoped_lock lock(mtx);
                 deqQueue.emplace_front(std::move(item));
+                cv.notify_one();
             }
 
             /// @brief return true if it is empty
@@ -84,9 +86,19 @@ namespace Olc
                 return temp;
             }
 
+            void wait()
+			{
+				while (empty()==true)
+				{
+					std::unique_lock<std::mutex> lock(mtx);
+					cv.wait(lock);
+				}
+			}
+
         protected:
             std::mutex mtx;
             std::deque<T> deqQueue;
+            std::condition_variable cv; 
         };
 
     }

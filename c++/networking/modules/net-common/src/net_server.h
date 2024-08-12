@@ -89,7 +89,7 @@ namespace Olc
             /// @param msg
             void MessageClient(std::shared_ptr<Connection<T>> client, const Message<T> &msg)
             {
-                if (!(client && client->IsConnected()))
+                if ((client && client->IsConnected()))
                 {
                     OnClientDisconnect(client);
                     client.reset(); // reset the owner ->nullptr
@@ -100,7 +100,7 @@ namespace Olc
                 client->Send(msg);
             }
 
-            void MessageAllClient(const Message<T> &msg, std::shared_ptr<Connection<T>> pIgnoredClient)
+            void MessageAllClients(const Message<T> &msg, std::shared_ptr<Connection<T>> pIgnoredClient)
             {
                 bool bInvalidClientExist = false;
                 for (auto &client : _deqConnections)
@@ -125,10 +125,12 @@ namespace Olc
                 }
             }
 
-            void Update(size_t maxMessages = -1)
+            void Update(size_t maxMessages = 1, bool bWait=false)
             {
-                size_t messageCount = 0;
-                while (messageCount < 0 && !_messageIn.empty())
+                if(bWait) _messageIn.wait();
+                size_t messageCount = 0 ;
+                //check whether have message in messagequeue 
+                while (messageCount < maxMessages && _messageIn.empty()==false)
                 {
                     auto msg = _messageIn.pop_front();
                     //notify message 
