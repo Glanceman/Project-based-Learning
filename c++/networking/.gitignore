@@ -2,3 +2,4 @@ dist
 libs
 build
 .vscode
+.cache

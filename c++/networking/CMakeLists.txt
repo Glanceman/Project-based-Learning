@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.13.0)
 
 project(asioApp VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -12,6 +12,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/dist)
 #include_directories(${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include)
 
 # Add subdirectories
+add_subdirectory(modules/protobuf-types)
 add_subdirectory(modules/net-common)
 add_subdirectory(modules/net-client)
 add_subdirectory(modules/net-server)

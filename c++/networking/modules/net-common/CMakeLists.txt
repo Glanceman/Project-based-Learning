@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.13.0)
 
 
 project(net-common VERSION 0.1.0 LANGUAGES C CXX)

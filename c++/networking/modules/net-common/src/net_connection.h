@@ -28,6 +28,7 @@ namespace Olc
             {
                 _ownerType = ownerType;
             }
+            
             virtual ~Connection()
             {
             }
@@ -207,9 +208,8 @@ namespace Olc
                 switch (_ownerType)
                 {
                 case OwnerType::Server /* constant-expression */:
-                    /* code */
                     {
-
+                        /* code */
                         _messageQueueIn.emplace_back({this->shared_from_this() /*remote*/, _incomingMessageTemp /*msg */});
                     }
                     break;

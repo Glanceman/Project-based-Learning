@@ -1,7 +1,12 @@
+#include "protoMessage.pb.h"
+
+#include <exception>
 #include <iostream>
 #include <olc_net.h>
 #include <chrono>
 #include <Windows.h> // For GetAsyncKeyState
+
+
 
 enum class CustomMsgTypes : uint32_t
 {
@@ -10,6 +15,7 @@ enum class CustomMsgTypes : uint32_t
     ServerPing,
     MessageAll,
     ServerMessage,
+    ServerEcho,
 };
 
 class CustomClient : public Olc::Net::Client_Interface<CustomMsgTypes>
@@ -22,6 +28,20 @@ public:
         msg.header.id = CustomMsgTypes::ServerPing;
         std::chrono::system_clock::time_point timeNow = std::chrono::system_clock::now();
         msg << timeNow;
+        Send(msg);
+    }
+
+    void EchoServer(){
+        std::cout << "\nEchoAll";
+        ProtoMessage::Message protoFormat;
+        protoFormat.set_msg("Hello World");
+        protoFormat.set_val(689);
+        std::string stringCode = protoFormat.SerializeAsString();
+
+        Olc::Net::Message<CustomMsgTypes> msg;
+        msg.header.id = CustomMsgTypes::ServerEcho;
+        msg<<stringCode;
+        
         Send(msg);
     }
 
@@ -43,8 +63,8 @@ int main()
         return 1;
     }
 
-    bool key[3] = {false, false, false};
-    bool old_key[3] = {false, false, false};
+    bool key[4] = {false, false, false,false};
+    bool old_key[4] = {false, false, false,false};
 
     bool bQuit = false;
     while (!bQuit)
@@ -53,14 +73,18 @@ int main()
         key[0] = GetAsyncKeyState('1') & 0x8000;
         key[1] = GetAsyncKeyState('2') & 0x8000;
         key[2] = GetAsyncKeyState('3') & 0x8000;
+        key[3] = GetAsyncKeyState('4') & 0x8000;
 
         // Take action
         if (key[0] && !old_key[0])
-            c.PingServer();
+            c.EchoServer();
         if (key[1] && !old_key[1])
             c.MessageAll();
         if (key[2] && !old_key[2])
             bQuit = true;
+        // if (key[3] && !old_key[3])
+        //     c.EchoServer();
+
 
         // Record old key states
         for (int i = 0; i < 3; i++)
@@ -89,9 +113,27 @@ int main()
                     std::cout << "\nServer denied the connection.";
                     bQuit = true;
                     break;
-                case CustomMsgTypes::ServerMessage:
-                    std::cout << "\nServer message received.";
+                case CustomMsgTypes::ServerMessage:{
+                        uint32_t clientID;
+                        msg >> clientID;
+                        std::cout << "\nHello from [" << clientID << "]";
+                    }
                     break;
+                case CustomMsgTypes::ServerEcho:{
+                    std::string stringCode;
+                    try {
+                        msg >> stringCode;
+                        std::cout<<"\nCODE " << stringCode;
+
+                        ProtoMessage::Message protoFormat;
+                        protoFormat.ParseFromString(stringCode);
+                        std::cout << "\nGOT protoMessage: " << protoFormat.msg() << " " << protoFormat.val();
+
+                    } catch (std::exception e) {
+                        std::cout<<"Error " << stringCode;
+                    }
+                }
+                break;
                 default:
                     std::cout << "\nUnknown message type received.";
                     break;

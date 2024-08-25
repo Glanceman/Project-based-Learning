@@ -68,7 +68,7 @@ namespace Olc
                         {
                             std::cout << "\n[Server] New Connection : " << socket.remote_endpoint();
                             // create connection 
-                            std::shared_ptr<Connection<T>> connection = std::make_shared<Connection<T>>(Connection<T>::OwnerType::Server, _context, std::move(socket), _messageIn);
+                            std::shared_ptr<Connection<T>> connection = std::make_shared<Connection<T>>(Connection<T>::OwnerType::Server, _context, std::move(socket), _messageInQueue);
                             //check whether the client reject the connection
                             if(OnClientConnect(connection)){
                                 // hold the connection by storing in the queue
@@ -87,37 +87,36 @@ namespace Olc
             /// @brief send message tp a client
             /// @param client
             /// @param msg
-            void MessageClient(std::shared_ptr<Connection<T>> client, const Message<T> &msg)
+            void MessageClient(std::shared_ptr<Connection<T>> clientConnection, const Message<T> &msg)
             {
-                if ((client && client->IsConnected()))
+                if ((clientConnection && clientConnection->IsConnected()))
                 {
-                    OnClientDisconnect(client);
-                    client.reset(); // reset the owner ->nullptr
-                    _deqConnections.erase(std::remove(_deqConnections.begin(), _deqConnections.end(), client), _deqConnections.end());
-                    return;
+                    clientConnection->Send(msg);
+                }else{
+                    OnClientDisconnect(clientConnection);
+                    clientConnection.reset(); // reset the owner ->nullptr
+                    _deqConnections.erase(std::remove(_deqConnections.begin(), _deqConnections.end(), clientConnection), _deqConnections.end());
                 }
-
-                client->Send(msg);
             }
 
-            void MessageAllClients(const Message<T> &msg, std::shared_ptr<Connection<T>> pIgnoredClient)
+            void MessageAllClients(const Message<T> &msg, std::shared_ptr<Connection<T>> pIgnoredClient = nullptr)
             {
                 bool bInvalidClientExist = false;
-                for (auto &client : _deqConnections)
+                for (std::shared_ptr<Connection<T>> &clientConnection : _deqConnections)
                 {
-                    if (client && client->IsConnected())
+                    if (clientConnection && clientConnection->IsConnected())
                     {
-                        if (client != pIgnoredClient)
+                        if (clientConnection != pIgnoredClient)
                         {
-                            client->Send(msg);
+                            clientConnection->Send(msg);
                         }
-                        else
+                       
+                    } else // invalid cilent
                         {
-                            OnClientDisconnect(client);
-                            client.reset();
+                            OnClientDisconnect(clientConnection);
+                            clientConnection.reset();
                             bInvalidClientExist = true;
                         }
-                    }
                 }
                 if (bInvalidClientExist)
                 {
@@ -127,14 +126,16 @@ namespace Olc
 
             void Update(size_t maxMessages = 1, bool bWait=false)
             {
-                if(bWait) _messageIn.wait();
+                if(bWait) _messageInQueue.wait();
                 size_t messageCount = 0 ;
                 //check whether have message in messagequeue 
-                while (messageCount < maxMessages && _messageIn.empty()==false)
+                while (messageCount < maxMessages && _messageInQueue.empty()==false)
                 {
-                    auto msg = _messageIn.pop_front();
+                    // extract the message from queue
+                    auto msg = _messageInQueue.pop_front();
+                    
                     //notify message 
-                    OnMessage(msg.remote, msg.msg);
+                    OnMessage(msg.remoteConnection, msg.msg);
                     messageCount++;
                 }
             }
@@ -143,7 +144,7 @@ namespace Olc
             /// @brief call when a client connection
             /// @param client
             /// @return
-            virtual bool OnClientConnect(std::shared_ptr<Connection<T>> client)
+            virtual bool OnClientConnect(std::shared_ptr<Connection<T>> clientConnection)
             {
                 return false;
             }
@@ -151,21 +152,21 @@ namespace Olc
             /// @brief call when a client disconnect
             /// @param client
             /// @return
-            virtual void OnClientDisconnect(std::shared_ptr<Connection<T>> client)
+            virtual void OnClientDisconnect(std::shared_ptr<Connection<T>> clientConnection)
             {
-                std::cout << "\n[Server] " << client->GetID() << "Client Disconnected";
+                std::cout << "\n[Server] " << clientConnection->GetID() << "Client Disconnected";
             }
 
             /// @brief called when a message arrives
             /// @param client
             /// @param msg
-            virtual void OnMessage(std::shared_ptr<Connection<T>> client, Message<T> &msg)
+            virtual void OnMessage(std::shared_ptr<Connection<T>> clientConnection, Message<T> &msg)
             {
                 
             }
 
         protected:
-            Tsqueue<OwnedMessage<T>> _messageIn;
+            Tsqueue<OwnedMessage<T>> _messageInQueue;
             asio::io_context _context;
             std::thread _threadContext;
             std::deque<std::shared_ptr<Connection<T>>> _deqConnections; // contain all valid connection
