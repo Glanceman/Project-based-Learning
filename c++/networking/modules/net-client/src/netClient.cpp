@@ -10,12 +10,12 @@
 
 enum class CustomMsgTypes : uint32_t
 {
-    ServerAccept,  // Fixed typo
+    ServerAccept,  
     ServerDeny,
     ServerPing,
-    MessageAll,
     ServerMessage,
-    ServerEcho,
+    MessageAll,
+    Echo,
 };
 
 class CustomClient : public Olc::Net::Client_Interface<CustomMsgTypes>
@@ -39,7 +39,7 @@ public:
         std::string stringCode = protoFormat.SerializeAsString();
 
         Olc::Net::Message<CustomMsgTypes> msg;
-        msg.header.id = CustomMsgTypes::ServerEcho;
+        msg.header.id = CustomMsgTypes::Echo;
         msg<<stringCode;
         
         Send(msg);
@@ -119,7 +119,7 @@ int main()
                         std::cout << "\nHello from [" << clientID << "]";
                     }
                     break;
-                case CustomMsgTypes::ServerEcho:{
+                case CustomMsgTypes::Echo:{
                     std::string stringCode;
                     try {
                         msg >> stringCode;

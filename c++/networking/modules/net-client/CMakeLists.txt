@@ -24,7 +24,7 @@ target_link_directories(net-client  PRIVATE
 target_include_directories(net-client  PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
-    ${CMAKE_SOURCE_DIR}/modules/protobuf-types/src #protobuf format header
+    ${CMAKE_SOURCE_DIR}/modules/protobuf-types/gen #protobuf format header
 )
 
 target_link_libraries(net-client  PRIVATE 

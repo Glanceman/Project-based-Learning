@@ -24,7 +24,7 @@ target_link_directories(simple-example PRIVATE
 target_include_directories(simple-example PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/src
     ${CMAKE_SOURCE_DIR}/libs/asio-1.30.2/include
-    ${CMAKE_SOURCE_DIR}/modules/protobuf-types/src #protobuf format header
+    ${CMAKE_SOURCE_DIR}/modules/protobuf-types/gen #protobuf format header
 )
 
 target_link_libraries(simple-example  PRIVATE 

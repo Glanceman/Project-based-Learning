@@ -17,19 +17,38 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 #     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
 # )
 
-aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/" SOURCES)
-#aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/gen/" FORMAT_SOURCES)
 
-#add_library(net-client STATIC ${SOURCES})
-#message(${CMAKE_SOURCE_DIR}/libs/protobuf-27.3-g++/lib)
-# link_directories(
-#     ${CMAKE_SOURCE_DIR}/libs/protobuf-27.3-g++/lib/
-# )
+# set the compiler
+set(PROTO_COMPILER ${CMAKE_SOURCE_DIR}/libs/protobuf-27.3-g++/bin/protoc.exe)
+message(STATUS "PROTOBUF compiler ${PROTO_COMPILER}")
 
-#add_executable(protoMessage ${SOURCES} )
+# Gather .proto files
+file(GLOB_RECURSE PROTO_FILES "${CMAKE_CURRENT_SOURCE_DIR}/idl/*.proto")
+
+# Generate C++ code from .proto files
+set(GENERATED_SOURCES)
+foreach(PROTO_FILE ${PROTO_FILES})
+    get_filename_component(PROTO_NAME ${PROTO_FILE} NAME_WE)
+    set(GENERATED_CC "${CMAKE_CURRENT_SOURCE_DIR}/gen/${PROTO_NAME}.pb.cc")
+    set(GENERATED_H "${CMAKE_CURRENT_SOURCE_DIR}/gen/${PROTO_NAME}.pb.h")
+    
+    add_custom_command(
+        OUTPUT ${GENERATED_CC} ${GENERATED_H}
+        COMMAND ${PROTO_COMPILER} --cpp_out=${CMAKE_CURRENT_SOURCE_DIR}/gen --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/idl ${PROTO_FILE}
+        DEPENDS ${PROTO_FILE}
+        COMMENT "Generating C++ code from ${PROTO_FILE}"
+        VERBATIM
+    )
+    list(APPEND GENERATED_SOURCES ${GENERATED_CC})
+endforeach()
+
+
+#aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/gen/" SOURCES)
+
 set(LIBRARY_OUTPUT_PATH ${CMAKE_CURRENT_SOURCE_DIR}/lib)
 
-add_library(protoMessage STATIC ${SOURCES})
+#add_executable(protoMessage ${SOURCES} )
+add_library(protoMessage STATIC ${GENERATED_SOURCES})
 
 target_include_directories(protoMessage PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/gen    
@@ -40,6 +59,26 @@ target_include_directories(protoMessage PRIVATE
 #get_target_property(PROTOBUF_LIB_PATH protobuf::libprotobuf IMPORTED_LINK_INTERFACE_LANGUAGES_RELEASE)
 #message(STATUS "protobuf::libprotobuf is located at: ${PROTOBUF_LIB_PATH}")
 
-
 target_link_libraries(protoMessage protobuf::libprotobuf)
+
+
+# # set(PROTO_SRCS)
+# # set(PROTO_HDRS)
+# foreach(IDL_FILE ${IDLSOURCES})
+#     get_filename_component(IDL_NAME ${IDL_FILE} NAME_WE)
+#     # Commented out code, consider removing if not needed
+#     # set(OUTPUT_CC "${CMAKE_CURRENT_SOURCE_DIR}/gen/${IDL_NAME}.pb.cc")
+#     # set(OUTPUT_H "${CMAKE_CURRENT_SOURCE_DIR}/gen/${IDL_NAME}.pb.h")
+
+#     message(STATUS "IDL Name '${IDL_NAME}' at ${IDL_FILE}")
+#     add_custom_command(
+#         TARGET protoMessage PRE_BUILD
+#         COMMAND ${PROTO_COMPILER} --cpp_out=${CMAKE_CURRENT_SOURCE_DIR}/gen --proto_path=${CMAKE_CURRENT_SOURCE_DIR}/idl ${IDL_FILE}
+#         COMMENT "Generating C++ code from ${IDL_FILE}"
+#         VERBATIM
+#     )
+#     # Commented out code, consider removing if not needed
+#     # list(APPEND PROTO_SRCS ${OUTPUT_CC})
+#     # list(APPEND PROTO_HDRS ${OUTPUT_H})
+# endforeach()
 

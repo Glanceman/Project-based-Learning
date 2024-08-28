@@ -7,9 +7,9 @@ enum class CustomMsgTypes : uint32_t
     ServerAccept,  // Fixed typo
     ServerDeny,
     ServerPing,
-    MessageAll,
     ServerMessage,
-    ServerEcho,
+	MessageAll,
+    Echo,
 };
 
 class CustomServer : public Olc::Net::Server_Interface<CustomMsgTypes>
@@ -65,7 +65,7 @@ protected:
             case CustomMsgTypes::ServerDeny:
             case CustomMsgTypes::ServerMessage:
                   break;
-            case CustomMsgTypes::ServerEcho:{
+            case CustomMsgTypes::Echo:{
 					//extract string
 					std::string stringCode;
 					msg>>stringCode;
@@ -76,7 +76,7 @@ protected:
 					std::cout << "\nGOT protoMessage: " << protoFormat.msg() << " " << protoFormat.val() << std::endl;
 					//send it back
 					Olc::Net::Message<CustomMsgTypes> serverMsg;
-					serverMsg.header.id = CustomMsgTypes::ServerEcho;
+					serverMsg.header.id = CustomMsgTypes::Echo;
 					serverMsg<<stringCode;
 					MessageClient(clientConnection, serverMsg);
 
