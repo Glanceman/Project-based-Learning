@@ -1,6 +1,5 @@
 #pragma once
 
-#include "net_common.h"
 #include "net_message.h"
 #include "net_tsqueue.h"
 #include "net_connection.h"
@@ -14,7 +13,8 @@ namespace Olc
         class Server_Interface
         {
         public:
-            Server_Interface(uint16_t portNumber) :_portNumber(portNumber), _acceptor(_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), portNumber))
+            Server_Interface(uint16_t portNumber) :
+                _portNumber(portNumber), _acceptor(_context, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), portNumber))
             {
             }
 
@@ -28,8 +28,7 @@ namespace Olc
                 std::cout << "\n[Server] Starting ";
                 try
                 {
-                    _threadContext = std::thread([this]()
-                                                 { _context.run(); });
+                    _threadContext = std::thread([this]() { _context.run(); });
                     WaitForClientConnection();
                 }
                 catch (std::exception exception)
@@ -58,8 +57,7 @@ namespace Olc
             {
                 std::cout << "\n[Server] Waiting for Client to connect ";
                 _acceptor.async_accept(
-                    [this](std::error_code error_code, asio::ip::tcp::socket socket)
-                    {
+                    [this](std::error_code error_code, asio::ip::tcp::socket socket) {
                         if (error_code)
                         { // error
                             std::cout << "\n[Server] Connection Error : " << error_code.message();
@@ -67,15 +65,18 @@ namespace Olc
                         else
                         {
                             std::cout << "\n[Server] New Connection : " << socket.remote_endpoint();
-                            // create connection 
+                            // create connection
                             std::shared_ptr<Connection<T>> connection = std::make_shared<Connection<T>>(Connection<T>::OwnerType::Server, _context, std::move(socket), _messageInQueue);
-                            //check whether the client reject the connection
-                            if(OnClientConnect(connection)){
+                            // check whether the client reject the connection
+                            if (OnClientConnect(connection))
+                            {
                                 // hold the connection by storing in the queue
                                 _deqConnections.emplace_back(std::move(connection));
-                                _deqConnections.back()->ConnectToClient(_IDCounter++);
-                                std::cout << "\n[Server] "<<_deqConnections.back()->GetID()<<" Connection Approved";
-                            }else{
+                                _deqConnections.back()->ConnectToClient(this, _IDCounter++);
+                                std::cout << "\n[Server] " << _deqConnections.back()->GetID() << " Connection Approved";
+                            }
+                            else
+                            {
                                 std::cout << "\n[Server]  Connection Denied : " << socket.remote_endpoint();
                             }
                         }
@@ -92,7 +93,9 @@ namespace Olc
                 if ((clientConnection && clientConnection->IsConnected()))
                 {
                     clientConnection->Send(msg);
-                }else{
+                }
+                else
+                {
                     OnClientDisconnect(clientConnection);
                     clientConnection.reset(); // reset the owner ->nullptr
                     _deqConnections.erase(std::remove(_deqConnections.begin(), _deqConnections.end(), clientConnection), _deqConnections.end());
@@ -110,13 +113,13 @@ namespace Olc
                         {
                             clientConnection->Send(msg);
                         }
-                       
-                    } else // invalid cilent
-                        {
-                            OnClientDisconnect(clientConnection);
-                            clientConnection.reset();
-                            bInvalidClientExist = true;
-                        }
+                    }
+                    else // invalid cilent
+                    {
+                        OnClientDisconnect(clientConnection);
+                        clientConnection.reset();
+                        bInvalidClientExist = true;
+                    }
                 }
                 if (bInvalidClientExist)
                 {
@@ -124,20 +127,33 @@ namespace Olc
                 }
             }
 
-            void Update(size_t maxMessages = 1, bool bWait=false)
+            /// @brief
+            /// @param maxMessages
+            /// @param bWait, if true, loop will continue only if the message comes
+            /// @return
+            void Update(size_t maxMessages = 1, bool bWait = false)
             {
-                if(bWait) _messageInQueue.wait();
-                size_t messageCount = 0 ;
-                //check whether have message in messagequeue 
-                while (messageCount < maxMessages && _messageInQueue.empty()==false)
+                // reduce the cpu full load
+                if (bWait) _messageInQueue.wait();
+                size_t messageCount = 0;
+                // check whether have message in messagequeue
+                while (messageCount < maxMessages && _messageInQueue.empty() == false)
                 {
                     // extract the message from queue
                     auto msg = _messageInQueue.pop_front();
-                    
-                    //notify message 
+
+                    // notify message
                     OnMessage(msg.remoteConnection, msg.msg);
                     messageCount++;
                 }
+            }
+
+            /// @brief call when handshake is complete
+            /// @param client
+            /// @return
+            virtual bool OnCilentValidated(std::shared_ptr<Connection<T>> clientConnection)
+            {
+                return false;
             }
 
         protected:
@@ -162,18 +178,17 @@ namespace Olc
             /// @param msg
             virtual void OnMessage(std::shared_ptr<Connection<T>> clientConnection, Message<T> &msg)
             {
-                
             }
 
         protected:
-            Tsqueue<OwnedMessage<T>> _messageInQueue;
-            asio::io_context _context;
-            std::thread _threadContext;
+            Tsqueue<OwnedMessage<T>>                   _messageInQueue;
+            asio::io_context                           _context;
+            std::thread                                _threadContext;
             std::deque<std::shared_ptr<Connection<T>>> _deqConnections; // contain all valid connection
-            asio::ip::tcp::acceptor _acceptor;
-            uint16_t _portNumber;
+            asio::ip::tcp::acceptor                    _acceptor;
+            uint16_t                                   _portNumber;
             // Client will be identified in the wider system via id
             uint32_t _IDCounter = 1000;
         };
-    }
-}
+    } // namespace Net
+} // namespace Olc

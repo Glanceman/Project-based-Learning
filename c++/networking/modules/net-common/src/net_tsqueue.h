@@ -88,7 +88,7 @@ namespace Olc
 
             void wait()
 			{
-				while (empty()==true)
+				while (empty()==true) // if empty, then wait 
 				{
 					std::unique_lock<std::mutex> lock(mtx);
 					cv.wait(lock);

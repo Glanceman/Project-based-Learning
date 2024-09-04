@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.13.0)
 
 project(simple-example VERSION 0.1.0 LANGUAGES C CXX)
 
@@ -17,6 +17,7 @@ aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/" SOURCES)
 
 add_executable(simple-example ${SOURCES})
 
+#Set static lib location
 target_link_directories(simple-example PRIVATE
     ${CMAKE_SOURCE_DIR}/modules/protobuf-types/lib
 )
