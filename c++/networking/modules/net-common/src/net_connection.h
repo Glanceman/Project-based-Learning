@@ -8,11 +8,13 @@
 #include <locale.h>
 #include <memory>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <winnt.h>
 #include <cstdint>
 #include <openssl/evp.h>
 #include <sstream>
+#include <asio/steady_timer.hpp>
 
 namespace Olc
 {
@@ -77,6 +79,8 @@ namespace Olc
                     // convert hex to string
                     std::unique_ptr<unsigned char[]> digest = Scramble(seed);
                     _handShakeCheck                         = HexToString(digest.get(), MD5Length);
+
+                    _timer = std::make_unique<asio::steady_timer>(_asioContext, std::chrono::seconds(_timeInterval));
                 }
             }
 
@@ -115,9 +119,24 @@ namespace Olc
                     {
                         _id = id;
 
-                        // handshake
+                        // Start Handshake
                         //  send challenge
                         WriteValidationServer();
+                        _timer->async_wait([this](std::error_code ec) {
+                            if (!ec)
+                            {
+                                std::cout << "\nCalled From Timer";
+                                if (_handShakeSuccess == false)
+                                {
+                                    _socket.close();
+                                    std::cout << "\nTimeout";
+                                }
+                            }
+                            else
+                            {
+                                std::cout << "\nError from Timer";
+                            }
+                        });
                         // validated the receive answer
                         ReadValidationServer(server);
                     }
@@ -273,7 +292,7 @@ namespace Olc
                 asio::async_write(_socket, asio::buffer(&_nonce, sizeof(uint64_t)), [this](std::error_code ec, std::size_t length) {
                     if (ec)
                     {
-                        std::cout << "\n[ " << _id << " ] " << "Write/Send Validation To Client Failure";
+                        std::cout << "\n[ " << _id << " ] " << "Failure: Send Challenge To Client";
                         _socket.close();
                         return;
                     }
@@ -291,17 +310,18 @@ namespace Olc
                         std::cout << "\n Digest = " << digest;
                         if (digest != _handShakeCheck)
                         {
-                            std::cout << "\n  Validation Failure";
+                            std::cout << "\nFailure: Handshake";
                             _socket.close();
                         }
 
-                        std::cout << "\nClient Validation Successful";
+                        std::cout << "\nSuccessful: Handshake";
+                        _handShakeSuccess = true;
                         server->OnCilentValidated(this->shared_from_this());
                         ReadHeader();
                     }
                     else
                     {
-                        std::cout << "\n Client Disconnect ( Read Validation )";
+                        std::cout << "\nFailure: Handshake ( Read Validation )";
                         _socket.close();
                     }
                 });
@@ -324,7 +344,7 @@ namespace Olc
                     }
                     else
                     {
-                        std::cout << "\nServer Disconnect ( Read Validation )";
+                        std::cout << "\nFailure: Handshake - Receiving Challenge";
                         _socket.close();
                     }
                 });
@@ -336,13 +356,13 @@ namespace Olc
                 asio::async_write(_socket, asio::buffer(_digest, EVP_MAX_MD_SIZE), [this](std::error_code ec, std::size_t length) {
                     if (ec)
                     {
-                        std::cout << "\n[ " << _id << " ] " << "Write/Send Validation Fail";
+                        std::cout << "\n[ " << _id << " ] " << "Failure: Send Proof";
                         _socket.close();
                         return;
                     }
                     else
                     {
-                        std::cout << "\nCompleted and Sent digest";
+                        std::cout << "\nSuccessful: Handshake";
                         // listen the following message
                         ReadHeader();
                     }
@@ -368,9 +388,13 @@ namespace Olc
 
             // handshake
             unsigned char _digest[EVP_MAX_MD_SIZE];
-            uint64_t      _nonce          = 0;
-            std::string   _handShakeCheck = "";
-            const int     MD5Length       = 16; // bytes
+            uint64_t      _nonce            = 0;
+            std::string   _handShakeCheck   = "";
+            bool          _handShakeSuccess = false;
+            const int     MD5Length         = 16; // bytes
+
+            std::unique_ptr<asio::steady_timer> _timer;
+            const int                           _timeInterval = 1;
         };
     } // namespace Net
 
