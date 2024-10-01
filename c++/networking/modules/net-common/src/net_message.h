@@ -13,10 +13,9 @@ namespace Olc
         struct Message_header
         {
         public:
-            T id; //message type
+            T        id;       // message type
             uint32_t size = 0; // message size including header
         };
-
 
         template <typename T>
         struct Message
@@ -45,7 +44,7 @@ namespace Olc
             /// @param data
             /// @return
             template <typename T2>
-            friend Message<T> &operator <<(Message<T> &msg, const T2 &data)
+            friend Message<T> &operator<<(Message<T> &msg, const T2 &data)
             {
                 static_assert(std::is_standard_layout<T2>::value, "Data is too complex and can not be copied");
 
@@ -67,8 +66,9 @@ namespace Olc
             friend Message<T> &operator<<(Message<T> &msg, const std::string &data)
             {
                 size_t msgBodySize = msg.body.size();
-                size_t strLength = data.length();
-                // Extend the body to accommodate string data and its length
+                size_t strLength   = data.length();
+                // todo use reserve
+                //  Extend the body to accommodate string data and its length
                 msg.body.resize(msgBodySize + strLength + sizeof(size_t));
 
                 // Copy string data
@@ -83,14 +83,13 @@ namespace Olc
                 return msg;
             }
 
-
             /// @brief  extract data
             /// @tparam T2
             /// @param msg
             /// @param data
             /// @return
             template <typename T2>
-            friend Message<T> &operator >>(Message<T> &msg, T2 &outData)
+            friend Message<T> &operator>>(Message<T> &msg, T2 &outData)
             {
                 static_assert(std::is_standard_layout<T2>::value, "Data is too complex and can not be extract");
 
@@ -103,7 +102,6 @@ namespace Olc
                 msg.header.size = msg.size();
                 return msg;
             }
-
 
             /// @brief Extract std::string from the message (overload for std::string)
             /// @param msg Reference to the Message object
@@ -130,20 +128,20 @@ namespace Olc
 
         public:
             /* data */
-            Message_header<T> header{};
+            Message_header<T>    header{};
             std::vector<uint8_t> body;
         };
 
-        template<typename T>
+        template <typename T>
         class Connection;
 
-        template<typename T>
-        struct OwnedMessage{
-            
+        template <typename T>
+        struct OwnedMessage
+        {
             std::shared_ptr<Connection<T>> remoteConnection = nullptr;
-            
+
             Message<T> msg;
-            
+
             friend std::ostream &operator<<(std::ostream &os, const OwnedMessage<T> &message)
             {
                 os << message.msg;
@@ -152,8 +150,8 @@ namespace Olc
         };
 
         template <typename T, typename T2>
-        class CustomMessage{
-
+        class CustomMessage
+        {
         };
-    }
-}
+    } // namespace Net
+} // namespace Olc

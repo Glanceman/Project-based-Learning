@@ -5,15 +5,7 @@ project(simple-example VERSION 0.1.0 LANGUAGES C CXX)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
-# file(GLOB_RECURSE SOURCES
-#     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h"
-#     "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-# )
-
 aux_source_directory("${CMAKE_CURRENT_SOURCE_DIR}/src/" SOURCES)
-
-#add_library(net-client STATIC ${SOURCES})
-
 
 add_executable(simple-example ${SOURCES})
 

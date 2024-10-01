@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.13.0)
 
 project(protoMessage VERSION 0.1.0 LANGUAGES C CXX)
 
-
+#https://blog.csdn.net/qq_43190806/article/details/130210412
 set(absl_DIR ${CMAKE_SOURCE_DIR}/libs/protobuf-27.3-g++/lib/cmake/absl)
 set(utf8_range_DIR ${CMAKE_SOURCE_DIR}/libs/protobuf-27.3-g++/lib/cmake/utf8_range)
 set(Protobuf_DIR ${CMAKE_SOURCE_DIR}/libs/protobuf-27.3-g++/lib/cmake/protobuf)
