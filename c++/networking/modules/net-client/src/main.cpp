@@ -36,6 +36,41 @@ static void glfw_error_callback(int error, const char *description)
     fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
+bool UpdateUIScaling(float scale)
+{
+    ImGuiIO &io = ImGui::GetIO();
+
+    // Setup Dear ImGui style
+    ImGuiStyle &style       = ImGui::GetStyle();
+    ImGuiStyle  styleold    = style;        // Backup colors
+    style                   = ImGuiStyle(); // IMPORTANT: ScaleAllSizes will change the original size, so we should reset all style config
+    style.WindowBorderSize  = 1.0f;
+    style.ChildBorderSize   = 1.0f;
+    style.PopupBorderSize   = 1.0f;
+    style.FrameBorderSize   = 1.0f;
+    style.TabBorderSize     = 1.0f;
+    style.WindowRounding    = 0.0f;
+    style.ChildRounding     = 0.0f;
+    style.PopupRounding     = 0.0f;
+    style.FrameRounding     = 0.0f;
+    style.ScrollbarRounding = 0.0f;
+    style.GrabRounding      = 0.0f;
+    style.TabRounding       = 0.0f;
+    style.ScaleAllSizes(scale);
+    CopyMemory(style.Colors, styleold.Colors, sizeof(style.Colors)); // Restore colors
+
+    io.Fonts->Clear();
+
+    ImFont *font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\msyh.ttc", 16.0f * scale);
+    if (font == NULL)
+        font = io.Fonts->AddFontFromFileTTF("C:\\Windows\\Fonts\\msyh.ttf", 16.0f * scale); // Windows 7
+    IM_ASSERT(font != NULL);
+    if (font == NULL)
+        return false;
+
+    return true;
+}
+
 // Main code
 int main(int, char **)
 {
@@ -67,7 +102,7 @@ int main(int, char **)
 #endif
 
     // Create window with graphics context
-    GLFWwindow *window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(1280, 720, "Net-Client", nullptr, nullptr);
     if (window == nullptr)
         return 1;
     glfwMakeContextCurrent(window);
@@ -122,6 +157,8 @@ int main(int, char **)
     // IM_ASSERT(font != nullptr);
 
     // Our state
+
+    UpdateUIScaling(2);
 
     Application &app = Application::GetInstance();
 

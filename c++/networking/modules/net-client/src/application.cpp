@@ -143,7 +143,7 @@ void Application::Update()
 
     console.Draw("Console", &show_application_console);
 
-    ImGui::Begin("Sample");
+    ImGui::Begin("Control Section");
     if (ImGui::Button("Connect"))
     {
         if (client.IsConnected() == false)

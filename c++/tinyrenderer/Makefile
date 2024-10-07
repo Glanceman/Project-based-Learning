@@ -3,26 +3,35 @@ CPPFLAGS     =
 LDFLAGS      = -static-libgcc -static-libstdc++
 LIBS         = -lm
 
-DESTDIR = ./dist/
-TARGET  = main
+SRCDIR   = src
+OBJDIR   = obj
+DESTDIR  = dist
+TARGET   = main
 
-OBJECTS := $(patsubst %.cpp,%.o,$(wildcard *.cpp))
+SOURCES  := $(wildcard $(SRCDIR)/*.cpp)
+OBJECTS  := $(SOURCES:$(SRCDIR)/%.cpp=$(OBJDIR)/%.o)
 
-#This sets the default target to build the final executable.
-all: $(DESTDIR)$(TARGET)
+# target1:
+# 	@echo $(SOURCES)
+# 	@echo $(OBJECTS)
 
-#Compilation Rule:
-# $< represents the input .cpp file.
-# $@ represents the output .o file.
-$(OBJECTS): %.o: %.cpp
+all: directories $(DESTDIR)/$(TARGET)
+
+directories:
+#Window
+	@if not exist $(OBJDIR) mkdir $(OBJDIR)
+	@if not exist $(DESTDIR) mkdir $(DESTDIR)
+
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 	$(SYSCONF_LINK) -Wall $(CPPFLAGS) -c $(CFLAGS) $< -o $@
 
-#Linking Rule:
-$(DESTDIR)$(TARGET): $(OBJECTS)
-	$(SYSCONF_LINK) -Wall $(LDFLAGS) -o $(DESTDIR)$(TARGET) $(OBJECTS) $(LIBS)
+$(DESTDIR)/$(TARGET): $(OBJECTS)
+	$(SYSCONF_LINK) -Wall $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 clean:
-	-rm -f $(OBJECTS)
-	-rm -f $(TARGET)
+	-rm -rf $(OBJDIR)
+	-rm -rf $(DESTDIR)
 	-rm -f *.tga
+
+
 
