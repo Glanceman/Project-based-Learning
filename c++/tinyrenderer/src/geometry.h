@@ -29,7 +29,9 @@ struct Vec2
     inline Vec2<t> operator+(const Vec2<t> &V) const { return Vec2<t>(u + V.u, v + V.v); }
     inline Vec2<t> operator-(const Vec2<t> &V) const { return Vec2<t>(u - V.u, v - V.v); }
     inline Vec2<t> operator*(float f) const { return Vec2<t>(u * f, v * f); }
-
+    inline t       dot(const Vec2<t> &V) const { return (u * V.u + v * V.v); }
+    // Cross product function for 2D vectors
+    inline t cross(const Vec2<t> &V) const { return (u * V.v - v * V.u); }
     template <class>
     friend std::ostream &operator<<(std::ostream &s, Vec2<t> &v);
 };
@@ -56,9 +58,11 @@ struct Vec3
     Vec3(t _x, t _y, t _z) :
         x(_x), y(_y), z(_z) {}
 
+    // cross product
     inline Vec3<t> operator^(const Vec3<t> &v) const { return Vec3<t>(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x); }
     inline Vec3<t> operator+(const Vec3<t> &v) const { return Vec3<t>(x + v.x, y + v.y, z + v.z); }
     inline Vec3<t> operator-(const Vec3<t> &v) const { return Vec3<t>(x - v.x, y - v.y, z - v.z); }
+    // dot product
     inline Vec3<t> operator*(float f) const { return Vec3<t>(x * f, y * f, z * f); }
     inline t       operator*(const Vec3<t> &v) const { return x * v.x + y * v.y + z * v.z; }
     float          norm() const { return std::sqrt(x * x + y * y + z * z); }

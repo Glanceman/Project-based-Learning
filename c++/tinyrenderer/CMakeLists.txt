@@ -8,10 +8,33 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 # Set the output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/dist)
 
-# Collect source files
+# Collect source files .cpp .h
 aux_source_directory(${CMAKE_SOURCE_DIR}/src SOURCES)
 
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCES})
+#remove .cpp .h in lesson folder
+# Remove .cpp and .h files in lesson folder
+file(GLOB LESSON_SOURCES "${CMAKE_SOURCE_DIR}/src/lesson/*.cpp" "${CMAKE_SOURCE_DIR}/src/lesson/*.h")
+list(REMOVE_ITEM SOURCES ${LESSON_SOURCES})
+
+# Remove main.cpp from sources
+list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
+
+
+set(LESSON Lesson2.cpp)
+
+# Find the chosen lesson file
+set(ENTRY_POINT "${CMAKE_SOURCE_DIR}/src/lesson/${LESSON}")
+if(NOT EXISTS ${ENTRY_POINT})
+    set(ENTRY_POINT "${CMAKE_SOURCE_DIR}/src/main.cpp")
+endif()
+
+# Print the chosen entry point
+message("Using entry point: ${ENTRY_POINT}")
+
+# Print the list of files collected
+message("Sources: ${SOURCES}")
+
+add_executable(${CMAKE_PROJECT_NAME} ${ENTRY_POINT} ${SOURCES})
 
 # Ensure the output directory exists
 file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
