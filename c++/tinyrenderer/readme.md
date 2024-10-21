@@ -1,4 +1,3 @@
- ![image](./output.tga)
 
 ## Compile
 ```mingw32-make```

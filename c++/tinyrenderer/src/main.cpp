@@ -1,3 +1,4 @@
+#include <array>
 #include <iostream>
 #include "geometry.h"
 #include "tgaimage.h"
@@ -28,17 +29,15 @@ int main(int argc, char **argv)
     // draw the wireframe of the model
     for (int i = 0; i < model.nfaces(); i++)
     {
-        std::vector<int> face = model.face(i); // 1193/1240/1193
+        std::vector<int>     faces = model.face(i); // e.g 1193/1240/1193
+        std::array<Vec2i, 3> screen_vertices;
         for (int j = 0; j < 3; j++)
         {
-            Vec3f v0 = model.vert(face[j]);
-            Vec3f v1 = model.vert(face[(j + 1) % 3]);
-            int   x0 = (v0.x + 1.) * width / 2.;
-            int   y0 = (v0.y + 1.) * height / 2.;
-            int   x1 = (v1.x + 1.) * width / 2.;
-            int   y1 = (v1.y + 1.) * height / 2.;
-            Tool::line4(x0, y0, x1, y1, image1, red);
+            Vec3f v            = model.vert(faces[j]);
+            screen_vertices[j] = {static_cast<int>((v.x + 1.) * width / 2.), static_cast<int>((v.y + 1.) * height / 2)};
         }
+        const TGAColor color = TGAColor(rand() % 255, rand() % 255, rand() % 255, 255);
+        Tool::triangle_v3(screen_vertices[0], screen_vertices[1], screen_vertices[2], image1, color, true);
     }
     // save the image
     image1.flip_vertically();

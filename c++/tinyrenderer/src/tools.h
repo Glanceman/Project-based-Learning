@@ -192,7 +192,7 @@ namespace Tool
         float curX1 = v0.x;
         float curX2 = v0.x;
 
-        for (int i = v0.y; i < v2.y; i++)
+        for (int i = v0.y; i <= v2.y; i++)
         {
             if (i >= v1.y)
             {
@@ -215,7 +215,7 @@ namespace Tool
     // convert Cartesian coordinates into barycentric
     inline Vec3f barycentric(const std::array<Vec2i, 3> &points, const Vec2i &p)
     {
-        float area1 = 0.5 * (points[1] - points[0]).cross((p - points[0]));
+        float area1 = 0.5 * (points[1] - points[0]).cross((p - points[0])); // tri area in clockwise with cross product
         float area2 = 0.5 * (points[2] - points[1]).cross((p - points[1]));
         float area3 = 0.5 * (p - points[0]).cross((points[2] - points[0]));
 
@@ -245,16 +245,18 @@ namespace Tool
         {
             for (p.x = bboxmin.x; p.x <= bboxmax.x; p.x++)
             {
-                if (p.x == 20 && p.y == 20)
-                {
-                    std::cout << "stop";
-                }
                 Vec3f res = barycentric(points, p);
                 if (res.x < 0 || res.y < 0 || res.z < 0) continue;
                 image.set(p.x, p.y, color);
             }
         }
-        std::cout << "stop";
+
+        if (outline)
+        {
+            line5(v0.x, v0.y, v1.x, v1.y, image, TGAColor(255, 255, 255, 255));
+            line5(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 255, 255, 255));
+            line5(v2.x, v2.y, v0.x, v0.y, image, TGAColor(255, 255, 255, 255));
+        }
     }
 
 } // namespace Tool
