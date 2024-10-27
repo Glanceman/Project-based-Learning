@@ -1,12 +1,17 @@
+#include <algorithm>
 #include <array>
 #include <iostream>
 #include "geometry.h"
 #include "tgaimage.h"
 #include "tools.h"
 #include "model.h"
+#include <math.h>
 
 const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0, 0, 255);
+
+Vec3f light_dir(0, 0, -1); // define light_dir
+Vec3f View_dir(0, 0, -1);  // define View_dir
 
 int main(int argc, char **argv)
 {
@@ -31,13 +36,26 @@ int main(int argc, char **argv)
     {
         std::vector<int>     faces = model.face(i); // e.g 1193/1240/1193
         std::array<Vec2i, 3> screen_vertices;
+        std::array<Vec3f, 3> vertices;
         for (int j = 0; j < 3; j++)
         {
             Vec3f v            = model.vert(faces[j]);
             screen_vertices[j] = {static_cast<int>((v.x + 1.) * width / 2.), static_cast<int>((v.y + 1.) * height / 2)};
+            vertices[j]        = v;
         }
-        const TGAColor color = TGAColor(rand() % 255, rand() % 255, rand() % 255, 255);
-        Tool::triangle_v3(screen_vertices[0], screen_vertices[1], screen_vertices[2], image1, color, true);
+        Vec3f normal     = (vertices[2] - vertices[0]).cross(vertices[1] - vertices[0]);
+        Vec3f normal_dir = normal.normalize();
+
+        float intensity = light_dir.dot(normal_dir);
+        intensity       = std::max(intensity, 0.f);
+
+        // back face culling
+        float back_face_indicator = View_dir.dot(normal_dir);
+        if (back_face_indicator >= 0)
+        {
+            const TGAColor color = TGAColor(255 * intensity, 255 * intensity, 255 * intensity, 255);
+            Tool::triangle_v3(screen_vertices[0], screen_vertices[1], screen_vertices[2], image1, color, false);
+        }
     }
     // save the image
     image1.flip_vertically();

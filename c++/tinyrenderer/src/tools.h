@@ -253,9 +253,9 @@ namespace Tool
 
         if (outline)
         {
-            line5(v0.x, v0.y, v1.x, v1.y, image, TGAColor(255, 255, 255, 255));
-            line5(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 255, 255, 255));
-            line5(v2.x, v2.y, v0.x, v0.y, image, TGAColor(255, 255, 255, 255));
+            line5(v0.x, v0.y, v1.x, v1.y, image, TGAColor(255, 50, 50, 255));
+            line5(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 50, 50, 255));
+            line5(v2.x, v2.y, v0.x, v0.y, image, TGAColor(255, 50, 50, 255));
         }
     }
 
