@@ -168,6 +168,11 @@ namespace Tool
         }
     }
 
+    inline void line5(Vec2i p, Vec2i p1, TGAImage &image, TGAColor color)
+    {
+        line5(p.x, p.y, p1.x, p1.y, image, color);
+    }
+
     inline void triangle_v1(const Vec2i &v0, const Vec2i &v1, const Vec2i &v2, TGAImage &image, const TGAColor &color)
     {
         line5(v0.x, v0.y, v1.x, v1.y, image, color);

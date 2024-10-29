@@ -11,14 +11,16 @@
 
 
 
-### barycentric-coordinates
-$$
+### Barycentric-coordinates
+```math
+\begin{align}
     px = w_A * ax + w_B * bx + w_C * cx \\
     py = w_A * ay + w_B * by + w_C * cy \\
     1  = w_A + w_B + w_C\\
-$$
+\end{align}
+```
 
-$$
+```math
 \begin{pmatrix}
 p_x \\
 p_y \\
@@ -35,7 +37,7 @@ w_A \\
 w_B \\
 w_C
 \end{pmatrix}
-$$
+```
 
 ## Reference
 1. https://github.com/ssloy/tinyrenderer 

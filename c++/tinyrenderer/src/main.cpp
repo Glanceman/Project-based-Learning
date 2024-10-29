@@ -11,7 +11,7 @@ const TGAColor white = TGAColor(255, 255, 255, 255);
 const TGAColor red   = TGAColor(255, 0, 0, 255);
 
 Vec3f light_dir(0, 0, -1); // define light_dir
-Vec3f View_dir(0, 0, -1);  // define View_dir
+Vec3f view_dir(0, 0, -1);  // define View_dir
 
 int main(int argc, char **argv)
 {
@@ -50,7 +50,7 @@ int main(int argc, char **argv)
         intensity       = std::max(intensity, 0.f);
 
         // back face culling
-        float back_face_indicator = View_dir.dot(normal_dir);
+        float back_face_indicator = view_dir.dot(normal_dir);
         if (back_face_indicator >= 0)
         {
             const TGAColor color = TGAColor(255 * intensity, 255 * intensity, 255 * intensity, 255);
