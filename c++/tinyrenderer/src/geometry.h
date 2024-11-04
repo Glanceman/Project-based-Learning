@@ -30,6 +30,7 @@ struct Vec2
     inline Vec2<t> operator-(const Vec2<t> &V) const { return Vec2<t>(u - V.u, v - V.v); }
     inline Vec2<t> operator*(float f) const { return Vec2<t>(u * f, v * f); }
     inline t       dot(const Vec2<t> &V) const { return (u * V.u + v * V.v); }
+    inline Vec2<t> dot(float s) const { return Vec2<t>(u * s, v * s); }
     // Cross product function for 2D vectors
     inline t cross(const Vec2<t> &V) const { return (u * V.v - v * V.u); }
     template <class>

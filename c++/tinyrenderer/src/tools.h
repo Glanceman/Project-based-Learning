@@ -6,6 +6,17 @@
 #include <algorithm>
 namespace Tool
 {
+
+    inline Vec2f lerp(float r, Vec2f p0, Vec2f p1)
+    {
+        return p0 + (p1 - p0).dot(r);
+    }
+
+    inline Vec2i lerp(float r, Vec2i p0, Vec2i p1)
+    {
+        return p0.dot(1 - r) + (p1).dot(r);
+    }
+
     /// @brief version 1 bad if we choose large stepping, small will be example
     /// @param x0
     /// @param y0
