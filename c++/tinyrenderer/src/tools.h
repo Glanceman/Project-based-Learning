@@ -7,6 +7,13 @@
 namespace Tool
 {
 
+    inline Vec3f WorldToScreen(Vec3f v, TGAImage &screen)
+    {
+        int width  = screen.get_width();
+        int height = screen.get_height();
+        return Vec3f(int((v.x + 1.) * width / 2. + .5), int((v.y + 1.) * height / 2. + .5), v.z);
+    }
+
     inline Vec2f lerp(float r, Vec2f p0, Vec2f p1)
     {
         return p0 + (p1 - p0).dot(r);
@@ -240,6 +247,17 @@ namespace Tool
         return Vec3f(area1 / triArea, area2 / triArea, area3 / triArea);
     }
 
+    inline Vec3f barycentric(const std::array<Vec2f, 3> &points, const Vec2f &p)
+    {
+        float area1 = 0.5 * (points[1] - points[0]).cross((p - points[0])); // tri area in clockwise with cross product
+        float area2 = 0.5 * (points[2] - points[1]).cross((p - points[1]));
+        float area3 = 0.5 * (p - points[0]).cross((points[2] - points[0]));
+
+        float triArea = 0.5 * (points[1] - points[0]).cross((points[2] - points[0]));
+
+        return Vec3f(area1 / triArea, area2 / triArea, area3 / triArea);
+    }
+
     // barycentric coordinates https://www.youtube.com/watch?v=HYAgJN3x4GA&t=29s
     inline void triangle_v3(Vec2i v0, Vec2i v1, Vec2i v2, TGAImage &image, const TGAColor &color, bool outline = true)
     {
@@ -264,6 +282,64 @@ namespace Tool
                 Vec3f res = barycentric(points, p);
                 if (res.x < 0 || res.y < 0 || res.z < 0) continue;
                 image.set(p.x, p.y, color);
+            }
+        }
+
+        if (outline)
+        {
+            line5(v0.x, v0.y, v1.x, v1.y, image, TGAColor(255, 50, 50, 255));
+            line5(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 50, 50, 255));
+            line5(v2.x, v2.y, v0.x, v0.y, image, TGAColor(255, 50, 50, 255));
+        }
+    }
+
+    // barycentric coordinates https://www.youtube.com/watch?v=HYAgJN3x4GA&t=29s
+    inline void triangle_v4(Vec3f v0, Vec3f v1, Vec3f v2, TGAImage &image, float zBuffer[], const TGAColor &color, bool outline = true)
+    {
+        std::array<Vec3f, 3> points = {v0, v1, v2};
+
+        Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+        Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
+        Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
+
+        for (int i = 0; i < 3; i++)
+        {
+            bboxmin.x = std::max(0.f, std::min(points[i].x, bboxmin.x));
+            bboxmin.y = std::max(0.f, std::min(points[i].y, bboxmin.y));
+            bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, points[i].x));
+            bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, points[i].y));
+        }
+
+        Vec3f p(bboxmin.x, bboxmin.y, 0);
+        int   img_width  = image.get_width();
+        int   img_height = image.get_height();
+
+        std::array<Vec2f, 3> screen_pts;
+        for (int i = 0; i < screen_pts.size(); i++)
+        {
+            screen_pts[i] = Vec2f(points[i].x, points[i].y);
+        }
+
+        for (p.y = bboxmin.y; p.y <= bboxmax.y; p.y++)
+        {
+            for (p.x = bboxmin.x; p.x <= bboxmax.x; p.x++)
+            {
+                Vec3f res = barycentric(screen_pts, Vec2f(p.x, p.y));
+                if (res.x < 0 || res.y < 0 || res.z < 0) continue;
+
+                // get the z value of the point from
+                p.z = 0;
+                for (int i = 0; i < 3; i++) // barycentric(x+y+z=1)  (p=p1x+p2y+p3z)
+                {
+                    p.z += points[i].z * res[i];
+                }
+
+                int zIndex = p.y * img_width + p.x;
+                if (zBuffer[zIndex] < p.z)
+                {
+                    image.set(p.x, p.y, color);
+                    zBuffer[zIndex] = p.z;
+                }
             }
         }
 

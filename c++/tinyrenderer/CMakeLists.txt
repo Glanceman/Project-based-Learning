@@ -20,7 +20,7 @@ list(REMOVE_ITEM SOURCES ${LESSON_SOURCES})
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
 
-set(USE_MAIN FALSE) #<---########################################################################################
+set(USE_MAIN TRUE) #<---########################################################################################
 if(NOT USE_MAIN)
     #write not exist file to change main.cpp as starting point
     set(LESSON Lesson3.cpp)

@@ -1,6 +1,7 @@
 #ifndef __GEOMETRY_H__
 #define __GEOMETRY_H__
 
+#include <cassert>
 #include <cmath>
 #include <ostream>
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -28,13 +29,26 @@ struct Vec2
 
     inline Vec2<t> operator+(const Vec2<t> &V) const { return Vec2<t>(u + V.u, v + V.v); }
     inline Vec2<t> operator-(const Vec2<t> &V) const { return Vec2<t>(u - V.u, v - V.v); }
+
     inline Vec2<t> operator*(float f) const { return Vec2<t>(u * f, v * f); }
     inline t       dot(const Vec2<t> &V) const { return (u * V.u + v * V.v); }
     inline Vec2<t> dot(float s) const { return Vec2<t>(u * s, v * s); }
-    // Cross product function for 2D vectors
+    // Cross product function for 2D vectors Scaler
     inline t cross(const Vec2<t> &V) const { return (u * V.v - v * V.u); }
+
     template <class>
     friend std::ostream &operator<<(std::ostream &s, Vec2<t> &v);
+
+    t &operator[](const size_t i)
+    {
+        assert(i < 2);
+        return i <= 0 ? x : y;
+    }
+    const t &operator[](const size_t i) const
+    {
+        assert(i < 2);
+        return i <= 0 ? x : y;
+    }
 };
 
 template <class t>
@@ -71,6 +85,7 @@ struct Vec3
     inline t       operator*(const Vec3<t> &v) const { return x * v.x + y * v.y + z * v.z; }
     inline t       dot(const Vec3<t> &v) const { return x * v.x + y * v.y + z * v.z; }
 
+    // get the scalar of the vector
     float norm() const { return std::sqrt(x * x + y * y + z * z); }
 
     Vec3<t> &normalize(t l = 1)
@@ -81,6 +96,17 @@ struct Vec3
 
     template <class>
     friend std::ostream &operator<<(std::ostream &s, Vec3<t> &v);
+
+    t &operator[](const size_t i)
+    {
+        assert(i < 3);
+        return i <= 0 ? x : (1 == i ? y : z);
+    }
+    const t &operator[](const size_t i) const
+    {
+        assert(i < 3);
+        return i <= 0 ? x : (1 == i ? y : z);
+    }
 };
 
 typedef Vec2<float> Vec2f;

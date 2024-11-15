@@ -26,21 +26,23 @@ int main(int argc, char **argv)
     image.write_tga_file("../dist/output.tga");
 
     // import the model
-    int      width  = 800;
-    int      height = 800;
-    TGAImage image1(width, height, TGAImage::RGB);
-    Model    model("../asset/african_head.obj");
+    int                width  = 800;
+    int                height = 800;
+    TGAImage           image1(width, height, TGAImage::RGB);
+    std::vector<float> zBuffer(width * height, std::numeric_limits<float>::lowest());
+    Model              model("../asset/african_head.obj");
 
     // draw the wireframe of the model
     for (int i = 0; i < model.nfaces(); i++)
     {
         std::vector<int>     faces = model.face(i); // e.g 1193/1240/1193
-        std::array<Vec2i, 3> screen_vertices;
+        std::array<Vec3f, 3> screen_vertices;
+        std::array<Vec2i, 3> screen_temp;
         std::array<Vec3f, 3> vertices;
         for (int j = 0; j < 3; j++)
         {
             Vec3f v            = model.vert(faces[j]);
-            screen_vertices[j] = {static_cast<int>((v.x + 1.) * width / 2.), static_cast<int>((v.y + 1.) * height / 2)};
+            screen_vertices[j] = Tool::WorldToScreen(v, image1);
             vertices[j]        = v;
         }
         Vec3f normal     = (vertices[2] - vertices[0]).cross(vertices[1] - vertices[0]);
@@ -54,7 +56,7 @@ int main(int argc, char **argv)
         if (back_face_indicator >= 0)
         {
             const TGAColor color = TGAColor(255 * intensity, 255 * intensity, 255 * intensity, 255);
-            Tool::triangle_v3(screen_vertices[0], screen_vertices[1], screen_vertices[2], image1, color, false);
+            Tool::triangle_v4(screen_vertices[0], screen_vertices[1], screen_vertices[2], image1, zBuffer.data(), color, false);
         }
     }
     // save the image
