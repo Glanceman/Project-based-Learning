@@ -31,19 +31,27 @@ int main(int argc, char **argv)
     TGAImage           image1(width, height, TGAImage::RGB);
     std::vector<float> zBuffer(width * height, std::numeric_limits<float>::lowest());
     Model              model("../asset/african_head.obj");
+    // Model    model("../asset/plane.obj");
+    TGAImage diffuse_map;
+    diffuse_map.read_tga_file("../asset/african_head_diffuse.tga");
 
     // draw the wireframe of the model
     for (int i = 0; i < model.nfaces(); i++)
     {
-        std::vector<int>     faces = model.face(i); // e.g 1193/1240/1193
+        std::vector<int> vertex_indexes = model.face_vert(i); // e.g f 1193(vert)/1240(texture)/1193 1180(vert)/1227(texture)/1180 1179(vert)/1226(texture)/1179
+        std::vector<int> uv_indexes     = model.face_uv(i);   // e.g f 1193(vert)/1240(texture)/1193 1180(vert)/1227(texture)/1180 1179(vert)/1226(texture)/1179
+
         std::array<Vec3f, 3> screen_vertices;
-        std::array<Vec2i, 3> screen_temp;
+        std::array<Vec2f, 3> uvs;
         std::array<Vec3f, 3> vertices;
+
         for (int j = 0; j < 3; j++)
         {
-            Vec3f v            = model.vert(faces[j]);
+            Vec3f v            = model.vert(vertex_indexes[j]);
             screen_vertices[j] = Tool::WorldToScreen(v, image1);
             vertices[j]        = v;
+
+            uvs[j] = model.uv(uv_indexes[j]);
         }
         Vec3f normal     = (vertices[2] - vertices[0]).cross(vertices[1] - vertices[0]);
         Vec3f normal_dir = normal.normalize();
@@ -56,12 +64,12 @@ int main(int argc, char **argv)
         if (back_face_indicator >= 0)
         {
             const TGAColor color = TGAColor(255 * intensity, 255 * intensity, 255 * intensity, 255);
-            Tool::triangle_v4(screen_vertices[0], screen_vertices[1], screen_vertices[2], image1, zBuffer.data(), color, false);
+            Tool::triangle_v4(screen_vertices, uvs, image1, diffuse_map, zBuffer.data(), color, false);
         }
     }
     // save the image
     image1.flip_vertically();
-    image1.write_tga_file("../dist/model.tga");
+    image1.write_tga_file("../dist/model_color.tga");
     std::cout
         << "Success" << std::endl;
     return 0;

@@ -6,7 +6,7 @@
 #include "model.h"
 
 Model::Model(const char *filename) :
-    verts_(), faces_()
+    verts_(), faces_vert_()
 {
     std::ifstream in;
     in.open(filename, std::ifstream::in);
@@ -26,22 +26,34 @@ Model::Model(const char *filename) :
             for (int i = 0; i < 3; i++) iss >> v.raw[i];
             verts_.push_back(v);
         }
+        else if (!line.compare(0, 3, "vt "))
+        {
+            iss >> trash >> trash;
+            Vec2f uv;
+            for (int i = 0; i < 2; i++) iss >> uv.raw[i];
+            uvs_.push_back({uv.x, uv.y});
+        }
         else if (!line.compare(0, 2, "f "))
         {
-            std::vector<int> f;
+            std::vector<int> vertex_idxs;
+            std::vector<int> tex_idxs;
 
-            int itrash, idx;
+            int itrash, vert_idx, texture_coord_idx;
             iss >> trash;
 
-            while (iss >> idx >> trash >> itrash >> trash >> itrash)
+            while (iss >> vert_idx >> trash >> texture_coord_idx >> trash >> itrash)
             {
-                idx--; // in wavefront obj all indices start at 1, not zero
-                f.push_back(idx);
+                // in wavefront obj all indices start at 1, not zero
+                vertex_idxs.push_back(--vert_idx);
+                tex_idxs.emplace_back(--texture_coord_idx);
             }
-            faces_.push_back(f);
+            faces_vert_.push_back(vertex_idxs);
+            faces_uv_.push_back(tex_idxs);
         }
     }
-    std::cerr << "# v# " << verts_.size() << " f# " << faces_.size() << std::endl;
+    std::cerr << "# v# " << verts_.size()
+              << "# uv# " << uvs_.size()
+              << " f# " << faces_vert_.size();
 }
 
 Model::~Model()
@@ -55,15 +67,31 @@ int Model::nverts()
 
 int Model::nfaces()
 {
-    return (int)faces_.size();
+    return (int)faces_vert_.size();
 }
 
-std::vector<int> Model::face(int idx)
+/// @brief return the 3 vertex idx within a face
+/// @param idx
+std::vector<int> Model::face_vert(int idx)
 {
-    return faces_[idx];
+    return faces_vert_[idx];
 }
 
-Vec3f Model::vert(int i)
+/// @brief return the 3 texture uv within a face
+/// @param idx
+std::vector<int> Model::face_uv(int idx)
 {
-    return verts_[i];
+    return faces_uv_[idx];
+}
+
+/// @brief return vertice position
+Vec3f Model::vert(int idx)
+{
+    return verts_[idx];
+}
+
+/// @brief return texture position
+Vec2f Model::uv(int idx)
+{
+    return uvs_[idx];
 }

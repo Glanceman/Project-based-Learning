@@ -244,7 +244,7 @@ namespace Tool
 
         float triArea = 0.5 * (points[1] - points[0]).cross((points[2] - points[0]));
 
-        return Vec3f(area1 / triArea, area2 / triArea, area3 / triArea);
+        return Vec3f(area2 / triArea, area3 / triArea, area1 / triArea);
     }
 
     inline Vec3f barycentric(const std::array<Vec2f, 3> &points, const Vec2f &p)
@@ -255,69 +255,34 @@ namespace Tool
 
         float triArea = 0.5 * (points[1] - points[0]).cross((points[2] - points[0]));
 
-        return Vec3f(area1 / triArea, area2 / triArea, area3 / triArea);
+        return Vec3f(area2 / triArea, area3 / triArea, area1 / triArea);
     }
 
     // barycentric coordinates https://www.youtube.com/watch?v=HYAgJN3x4GA&t=29s
-    inline void triangle_v3(Vec2i v0, Vec2i v1, Vec2i v2, TGAImage &image, const TGAColor &color, bool outline = true)
+    inline void triangle_v4(std::array<Vec3f, 3> &screen_coords, std::array<Vec2f, 3> &uvs, TGAImage &screen, TGAImage &diffuse_map, float zBuffer[], const TGAColor &c, bool outline = true)
     {
-        std::array<Vec2i, 3> points = {v0, v1, v2};
-        Vec2i                bboxmin(image.get_width() - 1, image.get_height() - 1);
-        Vec2i                bboxmax(0, 0);
-
-        for (int i = 0; i < 3; i++)
-        {
-            bboxmin.x = std::max(0, std::min(points[i].x, bboxmin.x));
-            bboxmin.y = std::max(0, std::min(points[i].y, bboxmin.y));
-            bboxmax.x = std::min(image.get_width() - 1, std::max(bboxmax.x, points[i].x));
-            bboxmax.y = std::min(image.get_height() - 1, std::max(bboxmax.y, points[i].y));
-        }
-
-        Vec2i p(bboxmin);
-
-        for (p.y = bboxmin.y; p.y <= bboxmax.y; p.y++)
-        {
-            for (p.x = bboxmin.x; p.x <= bboxmax.x; p.x++)
-            {
-                Vec3f res = barycentric(points, p);
-                if (res.x < 0 || res.y < 0 || res.z < 0) continue;
-                image.set(p.x, p.y, color);
-            }
-        }
-
-        if (outline)
-        {
-            line5(v0.x, v0.y, v1.x, v1.y, image, TGAColor(255, 50, 50, 255));
-            line5(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 50, 50, 255));
-            line5(v2.x, v2.y, v0.x, v0.y, image, TGAColor(255, 50, 50, 255));
-        }
-    }
-
-    // barycentric coordinates https://www.youtube.com/watch?v=HYAgJN3x4GA&t=29s
-    inline void triangle_v4(Vec3f v0, Vec3f v1, Vec3f v2, TGAImage &image, float zBuffer[], const TGAColor &color, bool outline = true)
-    {
-        std::array<Vec3f, 3> points = {v0, v1, v2};
-
         Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
         Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
-        Vec2f clamp(image.get_width() - 1, image.get_height() - 1);
+        Vec2f clamp(screen.get_width() - 1, screen.get_height() - 1);
 
         for (int i = 0; i < 3; i++)
         {
-            bboxmin.x = std::max(0.f, std::min(points[i].x, bboxmin.x));
-            bboxmin.y = std::max(0.f, std::min(points[i].y, bboxmin.y));
-            bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, points[i].x));
-            bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, points[i].y));
+            bboxmin.x = std::max(0.f, std::min(screen_coords[i].x, bboxmin.x));
+            bboxmin.y = std::max(0.f, std::min(screen_coords[i].y, bboxmin.y));
+            bboxmax.x = std::min(clamp.x, std::max(bboxmax.x, screen_coords[i].x));
+            bboxmax.y = std::min(clamp.y, std::max(bboxmax.y, screen_coords[i].y));
         }
 
         Vec3f p(bboxmin.x, bboxmin.y, 0);
-        int   img_width  = image.get_width();
-        int   img_height = image.get_height();
+        int   img_width  = screen.get_width();
+        int   img_height = screen.get_height();
+
+        Vec2f tx_p;
 
         std::array<Vec2f, 3> screen_pts;
         for (int i = 0; i < screen_pts.size(); i++)
         {
-            screen_pts[i] = Vec2f(points[i].x, points[i].y);
+            screen_pts[i] = Vec2f(screen_coords[i].x, screen_coords[i].y);
         }
 
         for (p.y = bboxmin.y; p.y <= bboxmax.y; p.y++)
@@ -328,16 +293,26 @@ namespace Tool
                 if (res.x < 0 || res.y < 0 || res.z < 0) continue;
 
                 // get the z value of the point from
-                p.z = 0;
+                p.z  = 0;
+                tx_p = Vec2f(0, 0);
                 for (int i = 0; i < 3; i++) // barycentric(x+y+z=1)  (p=p1x+p2y+p3z)
                 {
-                    p.z += points[i].z * res[i];
+                    // depth of p
+                    p.z += screen_coords[i].z * res[i];
+
+                    // texture coordinate of p
+                    tx_p.u += uvs[i].u * res[i];
+                    tx_p.v += uvs[i].v * res[i];
                 }
+
+                // std::cout << tx_p.u << " " << tx_p.v << std::endl;
+                TGAColor col = diffuse_map.get(tx_p.u * diffuse_map.get_width(), (1 - tx_p.v) * diffuse_map.get_height());
+                // TGAColor col = TGAColor(res.x * 255, res.y * 255, res.z * 255, 255);
 
                 int zIndex = p.y * img_width + p.x;
                 if (zBuffer[zIndex] < p.z)
                 {
-                    image.set(p.x, p.y, color);
+                    screen.set(p.x, p.y, col);
                     zBuffer[zIndex] = p.z;
                 }
             }
@@ -345,9 +320,9 @@ namespace Tool
 
         if (outline)
         {
-            line5(v0.x, v0.y, v1.x, v1.y, image, TGAColor(255, 50, 50, 255));
-            line5(v1.x, v1.y, v2.x, v2.y, image, TGAColor(255, 50, 50, 255));
-            line5(v2.x, v2.y, v0.x, v0.y, image, TGAColor(255, 50, 50, 255));
+            line5(screen_coords[0].x, screen_coords[0].y, screen_coords[1].x, screen_coords[1].y, screen, TGAColor(255, 50, 50, 255));
+            line5(screen_coords[1].x, screen_coords[1].y, screen_coords[2].x, screen_coords[2].y, screen, TGAColor(255, 50, 50, 255));
+            line5(screen_coords[2].x, screen_coords[2].y, screen_coords[0].x, screen_coords[0].y, screen, TGAColor(255, 50, 50, 255));
         }
     }
 
