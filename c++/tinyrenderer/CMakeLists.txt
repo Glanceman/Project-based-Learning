@@ -22,12 +22,12 @@ list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
 set(USE_MAIN TRUE) #<---########################################################################################
 if(NOT USE_MAIN)
-    #write not exist file to change main.cpp as starting point
-    set(LESSON Lesson3.cpp)
+    set(LESSON lesson4.cpp)
 
     # Find the chosen lesson file
     set(ENTRY_POINT "${CMAKE_SOURCE_DIR}/src/lesson/${LESSON}")
     if(NOT EXISTS ${ENTRY_POINT})
+        #if not exist file then change main.cpp as starting point
         set(ENTRY_POINT "${CMAKE_SOURCE_DIR}/src/main.cpp")
     endif()
 else()

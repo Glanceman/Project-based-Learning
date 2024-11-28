@@ -23,14 +23,14 @@ Model::Model(const char *filename) :
         {
             iss >> trash;
             Vec3f v;
-            for (int i = 0; i < 3; i++) iss >> v.raw[i];
+            for (int i = 0; i < 3; i++) iss >> v[i];
             verts_.push_back(v);
         }
         else if (!line.compare(0, 3, "vt "))
         {
             iss >> trash >> trash;
             Vec2f uv;
-            for (int i = 0; i < 2; i++) iss >> uv.raw[i];
+            for (int i = 0; i < 2; i++) iss >> uv[i];
             uvs_.push_back({uv.x, uv.y});
         }
         else if (!line.compare(0, 2, "f "))

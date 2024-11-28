@@ -54,7 +54,7 @@ int main(int argc, char **argv)
             uvs[j] = model.uv(uv_indexes[j]);
         }
         Vec3f normal     = (vertices[2] - vertices[0]).cross(vertices[1] - vertices[0]);
-        Vec3f normal_dir = normal.normalize();
+        Vec3f normal_dir = normal.normalized();
 
         float intensity = light_dir.dot(normal_dir);
         intensity       = std::max(intensity, 0.f);
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
         if (back_face_indicator >= 0)
         {
             const TGAColor color = TGAColor(255 * intensity, 255 * intensity, 255 * intensity, 255);
-            Tool::triangle_v4(screen_vertices, uvs, image1, diffuse_map, zBuffer.data(), color, false);
+            Tool::triangle_v4(screen_vertices, uvs, image1, diffuse_map, zBuffer.data(), color, intensity, false);
         }
     }
     // save the image

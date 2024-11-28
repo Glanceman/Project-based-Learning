@@ -28,7 +28,7 @@ int main(int argc, char **argv)
     // draw the wireframe of the model
     for (int i = 0; i < model.nfaces(); i++)
     {
-        std::vector<int> face = model.face(i); // 1193/1240/1193
+        std::vector<int> face = model.face_vert(i); // 1193/1240/1193
         for (int j = 0; j < 3; j++)
         {
             Vec3f v0 = model.vert(face[j]);

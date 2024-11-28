@@ -238,11 +238,11 @@ namespace Tool
     // convert Cartesian coordinates into barycentric
     inline Vec3f barycentric(const std::array<Vec2i, 3> &points, const Vec2i &p)
     {
-        float area1 = 0.5 * (points[1] - points[0]).cross((p - points[0])); // tri area in clockwise with cross product
-        float area2 = 0.5 * (points[2] - points[1]).cross((p - points[1]));
-        float area3 = 0.5 * (p - points[0]).cross((points[2] - points[0]));
+        float area1 = 0.5f * (points[1] - points[0]).cross((p - points[0])); // tri area in clockwise with cross product
+        float area2 = 0.5f * (points[2] - points[1]).cross((p - points[1]));
+        float area3 = 0.5f * (p - points[0]).cross((points[2] - points[0]));
 
-        float triArea = 0.5 * (points[1] - points[0]).cross((points[2] - points[0]));
+        float triArea = 0.5f * (points[1] - points[0]).cross((points[2] - points[0]));
 
         return Vec3f(area2 / triArea, area3 / triArea, area1 / triArea);
     }
@@ -259,7 +259,7 @@ namespace Tool
     }
 
     // barycentric coordinates https://www.youtube.com/watch?v=HYAgJN3x4GA&t=29s
-    inline void triangle_v4(std::array<Vec3f, 3> &screen_coords, std::array<Vec2f, 3> &uvs, TGAImage &screen, TGAImage &diffuse_map, float zBuffer[], const TGAColor &c, bool outline = true)
+    inline void triangle_v4(std::array<Vec3f, 3> &screen_coords, std::array<Vec2f, 3> &uvs, TGAImage &screen, TGAImage &diffuse_map, float zBuffer[], const TGAColor &c, float intensity, bool outline = true)
     {
         Vec2f bboxmin(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
         Vec2f bboxmax(-std::numeric_limits<float>::max(), -std::numeric_limits<float>::max());
@@ -307,6 +307,7 @@ namespace Tool
 
                 // std::cout << tx_p.u << " " << tx_p.v << std::endl;
                 TGAColor col = diffuse_map.get(tx_p.u * diffuse_map.get_width(), (1 - tx_p.v) * diffuse_map.get_height());
+                col.set_brightness(intensity);
                 // TGAColor col = TGAColor(res.x * 255, res.y * 255, res.z * 255, 255);
 
                 int zIndex = p.y * img_width + p.x;
