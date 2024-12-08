@@ -1,12 +1,17 @@
-cmake_minimum_required(VERSION 3.13.0)
+cmake_minimum_required(VERSION 3.20.0)
 
 project(TinyRenderer VERSION 0.1.0 LANGUAGES C CXX)
 
-set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD 23)
 
 # Set the output directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/dist)
+
+set(Test True)
+if(Test)
+    add_subdirectory(./test)
+endif()
 
 # Collect source files .cpp .h
 aux_source_directory(${CMAKE_SOURCE_DIR}/src SOURCES)
@@ -20,7 +25,7 @@ list(REMOVE_ITEM SOURCES ${LESSON_SOURCES})
 list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
 
-set(USE_MAIN TRUE) #<---########################################################################################
+set(USE_MAIN FALSE) #<---########################################################################################
 if(NOT USE_MAIN)
     set(LESSON lesson4.cpp)
 
