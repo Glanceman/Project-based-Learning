@@ -1,12 +1,11 @@
 #include <iostream>
-#include <utility>
 #include <vector>
 #include "../geometry.h"
 #include "../model.h"
 #include "../tgaimage.h"
 #include "../tools.h"
 #include <expected>
-#include <string_view>
+
 
 
 const TGAColor white  = TGAColor(255, 255, 255, 255);
@@ -21,17 +20,29 @@ const int height = 100;
 const int depth  = 255;
 
 
+Mat<float,4,4> viewport(int x, int y, int w, int h) {
+    Mat<float,4,4> m = Mat<float,4,4>::identity();
+    m[0][3] = x+w/2.f;
+    m[1][3] = y+h/2.f;
+    m[2][3] = depth/2.f;
+
+    m[0][0] = w/2.f;
+    m[1][1] = h/2.f;
+    m[2][2] = depth/2.f;
+    return m;
+}
+
 int main(int argc, char **argv)
 {
 
-    int value = __cplusplus;
-    std::cout<<value<<std::endl;
-
+    model = new Model("../../asset/cube.obj");
 
     int      width  = 800;
     int      height = 500;
     TGAImage scene(width, height, TGAImage::RGB);
+    std::vector<float> zBuffer(width * height, std::numeric_limits<float>::lowest());
 
+    Mat<float,4,4> VP = viewport(width/4, width/4, width/2, height/2);
     { // draw the axes
         Vec3f x(1.f, 0.f, 0.f), y(0.f, 1.f, 0.f), o(0.f, 0.f, 0.f);
     }

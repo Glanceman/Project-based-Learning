@@ -103,6 +103,16 @@ std::ostream &operator<<(std::ostream &out, const Vec<T, n> &v)
     return out;
 }
 
+template <typename T, int n>
+bool operator==(const Vec<T, n> &rhs, const Vec<T, n> &lhs)
+{
+    for (int i = 0; i<n; i++){
+        if(rhs[i]!=lhs[i]) return false;
+    }
+    return true;
+}
+
+
 template <typename T>
 struct Vec<T, 2>
 {
