@@ -102,7 +102,7 @@ y_{ndc} &=\frac{2\times y_\text{cam} \times \text{near}}{-z_\text{cam} \times (\
 y_{ndc} &=\frac{\frac{2\times y_\text{cam}}{ \text{top}-\text{bot}}\times \text{near}}{-z_\text{cam} }- \frac{\text{top}+\text{bot}}{\text{top}-\text{bot}}\\
 y_{ndc} &=\frac{\frac{2\times \text{near}}{ \text{top}-\text{bot}}}{-z_\text{cam} }y_\text{cam}- \frac{-z_\text{cam}\times (\text{top}+\text{bot})}{-z_\text{cam} \times (\text{top}-\text{bot})}\\
 y_{ndc} &=\frac{\frac{2\times \text{near}}{ \text{top}-\text{bot}}}{-z_\text{cam} }y_\text{cam} + \frac{\frac{\text{top}+\text{bot}}{\text{top}-\text{bot}}}{-z_\text{cam}}z_\text{cam}\\
-y_{ndc} &=\frac{{\frac{2\times \text{near}}{ \text{top}-\text{bot}}}y_\text{cam} + \frac{\text{top}+\text{bot}}{\text{top}-\text{bot}}z_\text{cam}}{-z_\text{cam}}
+y_{ndc} &=\frac{{\frac{2 \times \text{near}}{ \text{top}-\text{bot}}}y_\text{cam} + \frac{\text{top}+\text{bot}}{\text{top}-\text{bot}}z_\text{cam}}{-z_\text{cam}}
 \end{split}
 ```
 

@@ -112,6 +112,13 @@ bool operator==(const Vec<T, n> &rhs, const Vec<T, n> &lhs)
     return true;
 }
 
+template <typename T, int n>
+T dot(const Vec<T, n> &lhs, const Vec<T, n> &rhs)
+{
+    T ret = 0;
+    for (int i = n; i--; ret += lhs[i] * rhs[i]);
+    return ret;
+}
 
 template <typename T>
 struct Vec<T, 2>
@@ -180,6 +187,7 @@ struct Vec<T, 3>
     inline T         norm() const { return std::sqrt(norm2()); }
     inline Vec<T, 3> normalized() { return (*this) / norm(); }
     inline T         dot(const Vec<T, 3> &vec) const { return *this * vec; }
+    inline Vec<T, 3> dot(T scalar) const { return *this * scalar; }
     inline Vec<T, 3> cross(const Vec<T, 3> &v) const
     {
         return Vec<T, 3>(y * v.z - z * v.y, z * v.x - x * v.z, x * v.y - y * v.x);
@@ -217,11 +225,11 @@ struct Mat
     }
 
     /// @brief get the col values
-    Vec<T, cols> col(const int idx) const
+    Vec<T, rows> col(const int idx) const
     {
         assert(idx >= 0 && idx < cols);
         Vec<T, cols> ret;
-        for (int row = rows; row > 0; --row) ret[row] = data[row][idx];
+        for (int row = 0; row < rows; ++row) ret[row] = data[row][idx];
         return ret;
     }
 
@@ -233,11 +241,20 @@ struct Mat
 
     static Mat<T,rows,cols> identity() {
         Mat<T,rows,cols> ret;
-        for (int i=rows; i--; )
-            for (int j=cols;j>0; j--){
+        for (int i=0; i<rows;++i)
+            for (int j=0;j<cols; ++j){
                 if (i==j){
                     ret[i][j]=1;
                 }
+            }   
+        return ret;
+    }
+
+    static Mat<T,rows,cols> zero() {
+        Mat<T,rows,cols> ret;
+        for (int i=0; i<rows;++i )
+            for (int j=0;j<cols; ++j){
+                ret[i][j]=0;
             }   
         return ret;
     }
@@ -315,46 +332,56 @@ private:
 };
 
 
+//multiplication of matrix with scalar
 template<typename T, int rows,int cols>
 Mat<T,rows,cols> operator*(const Mat<T,rows,cols>& lhs, const double& val) {
     Mat<T,rows,cols> result;
-    for (int i=rows; i--; result[i] = lhs[i]*val);
+    for (int i=0; i<rows; i--){
+        result[i] = lhs[i]*val;
+    };
     return result;
 }
 
+//multiplication of matrix with vector
 template<typename T, int rows,int cols> 
 Vec<T, rows> operator*(const Mat<T,rows,cols>& lhs, const Vec<T,cols>& rhs) {
     Vec<T,rows> ret;
-    for (int i=rows;i>0; i--){ 
+    for (int i=0; i<rows; i++){ 
         ret[i] = lhs[i]*rhs;
     }
     return ret;
 }
 
+//multiplication of matrix with matrix
 template<typename T, int rows_1,int cols_1, int rows_2, int cols_2> 
 Mat<T, rows_1, cols_2> operator*(const Mat<T,rows_1,cols_1>& lhs, const Mat<T,rows_2,cols_2>& rhs) {
+    static_assert(cols_1 == rows_2, "Matrix dimensions must agree for multiplication.");
     Mat<T, rows_1, cols_2> ret;
-    for (int i=rows_1;i>0; i--){
-        for(int j=cols_2; j>0;j--){
-            ret[i] = lhs[i]*rhs.col(j);
+    for (int i=0; i<rows_1; i++){
+        for(int j=0; j<cols_2; j++){
+            ret[i][j]=dot(lhs[i],rhs.col(j));
         } 
     }
     return ret;
 }
 
 
+//division of matrix with scalar
 template<typename T, int rows,int cols>
 Mat<T,rows,cols> operator/(const Mat<T,rows,cols>& lhs, const double& val) {
     Mat<T,rows,cols> result;
-    for (int i=rows; i--; result[i] = lhs[i]/val);
+    for (int i=0; i<rows; i--){
+        result[i] = lhs[i]/val;
+    }
     return result;
 }
 
 
 template<typename T, int rows_1,int cols_1, int rows_2, int cols_2> 
 Mat<T, rows_1, cols_2> operator+(const Mat<T,rows_1,cols_1>& lhs, const Mat<T,rows_2,cols_2>& rhs) {
+    static_assert(rows_1 == rows_2 && cols_1 == cols_2, "Matrix dimensions must match for addition.");
     Mat<T, rows_1, cols_2> ret;
-    for (int i=rows_1;i>0; i--){
+    for (int i=0;i<rows_1; i--){
         ret[i] = lhs[i] + rhs[i];
 
     }
@@ -363,9 +390,10 @@ Mat<T, rows_1, cols_2> operator+(const Mat<T,rows_1,cols_1>& lhs, const Mat<T,ro
 
 template<typename T, int rows_1,int cols_1, int rows_2, int cols_2> 
 Mat<T, rows_1, cols_2> operator-(const Mat<T,rows_1,cols_1>& lhs, const Mat<T,rows_2,cols_2>& rhs) {
+    static_assert(rows_1 == rows_2 && cols_1 == cols_2, "Matrix dimensions must match for subtraction.");
     Mat<T, rows_1, cols_2> ret;
-    for (int i=rows_1;i>0; i--){
-        ret[i] = lhs[i] + rhs[i];
+    for (int i=0;i<rows_1; i--){
+        ret[i] = lhs[i] - rhs[i];
 
     }
     return ret;
@@ -391,9 +419,6 @@ bool operator==(const Mat<T,rows_1,cols_1>& lhs, const Mat<T,rows_2,cols_2>& rhs
     }
     return res;
 }
-
-
-
 
 
 #endif //__GEOMETRY_H__

@@ -57,3 +57,69 @@ TEST(Mat, tranpose_4x4){
     ASSERT_EQ(true, res);
 
 }
+
+
+TEST(Mat, mul_vec4f){
+    Mat<float, 4, 4> mat ={
+        Vec<float, 4>{1,10,1,0},
+        Vec<float, 4>{4,7,2,7},
+        Vec<float, 4>{6,2,1,6},
+        Vec<float, 4>{1,-1,4,8},
+        };
+
+    Vec4f vec = {1,2,3,4};
+    Vec4f temp = mat*vec;
+    Vec4f ans = {24 , 52, 37, 43};
+
+    bool res= (ans==temp);
+    ASSERT_EQ(true, res);
+
+}
+
+TEST(Mat, getCol){
+    Mat<float, 3, 3> mat ={
+        Vec<float, 3>{1,10,11},
+        Vec<float, 3>{4,7,2},
+        Vec<float, 3>{5,2,2},
+        };
+
+    Vec3f col = mat.col(0);
+    Vec3f ans = {1,4,5};
+    bool res = (ans==col);
+    ASSERT_EQ(true, res);
+}
+
+
+TEST(Mat, getRow){
+    Mat<float, 2, 2> mat ={
+        Vec<float, 2>{1,10},
+        Vec<float, 2>{4,7},
+        };
+
+    Vec2f row = mat[0];
+    Vec2f ans = {1,10};
+    bool res = (ans==row);
+    ASSERT_EQ(true, res);
+}
+
+TEST(Mat, mul_2x2){
+    Mat<float, 2, 2> mat ={
+        Vec<float, 2>{1,10},
+        Vec<float, 2>{4,7},
+        };
+
+    Mat<float, 2, 2> mat2 ={
+        Vec<float, 2>{-2,0},
+        Vec<float, 2>{5,7},
+    };
+
+    Mat<float, 2, 2> temp = mat*mat2;
+
+    Mat<float, 2, 2> ans = {
+        Vec<float, 2>{48,70},
+        Vec<float, 2>{27,49},
+    };
+
+    bool res = (ans==temp);
+    ASSERT_EQ(true, res);
+}
