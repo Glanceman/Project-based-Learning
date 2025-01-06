@@ -27,7 +27,7 @@ list(REMOVE_ITEM SOURCES "${CMAKE_SOURCE_DIR}/src/main.cpp")
 
 set(USE_MAIN FALSE) #<---########################################################################################
 if(NOT USE_MAIN)
-    set(LESSON lesson4.cpp)
+    set(LESSON lesson5.cpp)
 
     # Find the chosen lesson file
     set(ENTRY_POINT "${CMAKE_SOURCE_DIR}/src/lesson/${LESSON}")

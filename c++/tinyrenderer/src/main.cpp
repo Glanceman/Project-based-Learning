@@ -13,6 +13,9 @@ const TGAColor red   = TGAColor(255, 0, 0, 255);
 Vec3f light_dir(0, 0, -1); // define light_dir
 Vec3f view_dir(0, 0, -1);  // define View_dir
 
+
+
+
 int main(int argc, char **argv)
 {
     TGAImage image(100, 100, TGAImage::RGB);
@@ -28,6 +31,7 @@ int main(int argc, char **argv)
     // import the model
     int                width  = 800;
     int                height = 800;
+    float aspect = width/(float)height;
     TGAImage           image1(width, height, TGAImage::RGB);
     std::vector<float> zBuffer(width * height, std::numeric_limits<float>::lowest());
     Model              model("../asset/african_head.obj");
@@ -35,6 +39,10 @@ int main(int argc, char **argv)
     TGAImage diffuse_map;
     diffuse_map.read_tga_file("../asset/african_head_diffuse.tga");
 
+
+    Vec3f camera_pos(0, 0, -2);
+    Mat<float,4,4> projectionMatrix = Tool::perspectiveProjectionMatrix(0.5, -0.5, -aspect/2, aspect/2, 0.35, 1000);
+    Mat<float,4,4> translationMatrix = Tool::translationMatrix(camera_pos);
     // draw the wireframe of the model
     for (int i = 0; i < model.nfaces(); i++)
     {
@@ -48,7 +56,12 @@ int main(int argc, char **argv)
         for (int j = 0; j < 3; j++)
         {
             Vec3f v            = model.vert(vertex_indexes[j]);
-            screen_vertices[j] = Tool::WorldToScreen(v, image1);
+            // vec3 to vec4
+            Vec<float,4> v4 = {v.x, v.y, v.z, 1};
+            Vec4f projVec= projectionMatrix*translationMatrix*v4;
+            Vec3f projNDCVec3 = {projVec[0]/(projVec[3]+0.0001f), projVec[1]/(projVec[3]+0.0001f), projVec[2]/(projVec[3]+0.0001f)};
+            
+            screen_vertices[j] = Tool::WorldToScreen(projNDCVec3, image1);
             vertices[j]        = v;
 
             uvs[j] = model.uv(uv_indexes[j]);
@@ -69,8 +82,8 @@ int main(int argc, char **argv)
     }
     // save the image
     image1.flip_vertically();
-    image1.write_tga_file("../dist/model_color.tga");
+    image1.write_tga_file("../dist/model_perspective.tga");
     std::cout
-        << "Success" << std::endl;
+        << "Success (Main)" << std::endl;
     return 0;
 }

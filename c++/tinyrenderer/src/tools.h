@@ -327,4 +327,29 @@ namespace Tool
         }
     }
 
+    inline Mat<float,4,4> perspectiveProjectionMatrix(float top=1, float bot=-1, float left=-1, float right=1, float near=5, float far=100) {
+        Mat<float,4,4> m = Mat<float,4,4>::zero();
+        m[0][0] = 2*near/(right-left);
+        m[0][2] = (right+left)/(right-left);
+        
+        m[1][1] = 2*near/(top-bot);
+        m[1][2] = (top+bot)/(top-bot);
+        
+        m[2][2] = -(far+near)/(far-near);
+        m[2][3] = -2*far*near/(far-near);
+        
+        m[3][2] = -1;
+        m[3][3] = 0;
+        return m;
+    }
+
+    inline Mat<float,4,4> translationMatrix(Vec3f v) {
+        Mat<float,4,4> m = Mat<float,4,4>::identity();
+        m[0][3] = v.x;
+        m[1][3] = v.y;
+        m[2][3] = v.z;
+        return m;
+    }
+    
+
 } // namespace Tool

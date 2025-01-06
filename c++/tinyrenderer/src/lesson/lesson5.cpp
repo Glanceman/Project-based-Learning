@@ -120,7 +120,7 @@ int main(int argc, char **argv)
 
 
     scene.flip_vertically();
-    scene.write_tga_file("../dist/perspective.tga");
+    scene.write_tga_file("../dist/perspective2.tga");
     std::cout
         << "Success" << std::endl;
 
